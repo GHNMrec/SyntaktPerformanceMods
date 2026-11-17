@@ -31,6 +31,8 @@ pytestmark = pytest.mark.skipif(not (MAN and Path(MAN).exists() and SEC3.exists(
 
 @pytest.fixture(scope="module", params=[False, True], ids=["perfmods", "perfmods+tripwire"])
 def merged(request):
+    if request.param and not any(g["id"] == "tripwire" for g in M.catalog()["groups"]):
+        pytest.skip("this build has no crash tripwire")
     man = json.loads(Path(MAN).read_text(encoding="utf-8"))
     osv, mods = A.merge(man, M.catalog(), tripwire=request.param, notes=lambda *_: None)
     return man, mods

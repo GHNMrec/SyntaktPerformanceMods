@@ -54,10 +54,9 @@
 
 ## On the final images (as the unit runs them)
 
-Three TEST35a files were checked: the Performance Mods alone (OS 1.41 and 1.42), and the author's set + crash
-tripwire with PERFORM on his master filter (OS 1.41). The image is booted through the area loader.
+Two TEST35a files were checked: the Performance Mods alone (OS 1.41 and 1.42). The image is booted through the area loader.
 
-* The JOG, round-3 and Performance Mods tests pass on all three.
+* The JOG, round-3 and Performance Mods tests pass on both.
 * PERFORM is linked to the right filter in each.
 * The spectrum and header tests pass.
 
@@ -95,7 +94,6 @@ In the real audio interrupt (OS 1.41):
 | Build | At rest | PERFORM's filter gliding | + spectrum tap |
 |---|---|---|---|
 | Performance Mods alone (OS 1.41) | 69,006 | 69,271 | 69,991 |
-| Author's set + tripwire (OS 1.41) | 69,459 | 69,743 | 70,463 |
 
 The spectrum tap (about 730 instructions) runs only while PERFORM is on screen. The FFT runs in the drawing, not in
 the interrupt.

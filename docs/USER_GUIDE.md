@@ -151,4 +151,3 @@ longer fits its chunks with TEST35's additions. Bringing it back means making ro
    Push A; [FUNC] + push A. Turn C–H: nothing happens, and back on JOG ([LEFT]) nothing has changed.
 8. Play while on PERFORM: the bars move, and closing the low-pass drops the highs. Does the screen keep up? Are the
    other pages as smooth as before?
-9. If the unit stops on an exception screen starting `57AC` (the tripwire), photograph the whole screen.

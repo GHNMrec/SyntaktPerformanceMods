@@ -34,29 +34,6 @@
    }
   },
   {
-   "id": "tripwire",
-   "label": "Crash tripwire (diagnostic): stack guard + stop screen",
-   "default": false,
-   "status": "EXPERIMENTAL",
-   "mods": [
-    "tripwire"
-   ],
-   "info": "TEST33b. For the silent freeze (a buzz, no screen) on song / pattern changes. Paints every task's stack when the OS creates it, then every audio block checks how much room is left under the stack it interrupted, and one stack's bottom (a canary) for an overrun. A stack about to run out, or already overrun, stops the unit at once with an exception screen starting 57AC that names the task, instead of a silent freeze. Harmless otherwise: the OS runs exactly as stock. OS 1.41 and 1.42.",
-   "why": "Diagnostic; checked in the emulator only, not run on your unit yet.",
-   "idle": 330,
-   "busy": 330,
-   "busy_what": "the stack lookup and one canary check each audio block; painting the stacks once at boot",
-   "notes": {
-    "latest": "TEST33b: added (OS 1.41 and 1.42, diagnostic) for the song-transition freeze.",
-    "check": [
-     "Save your project first. Play the song that froze, through the transitions that froze.",
-     "If the unit stops with a screen whose first value line starts 57AC: photograph the whole screen (every line). Power off and on to carry on.",
-     "If it freezes silently again (buzz, no screen): note that too; it rules a stack out.",
-     "If nothing happens after a good long session: tell me, that's a result as well."
-    ]
-   }
-  },
-  {
    "id": "perfmods",
    "label": "Syntakt Performance Mods: JOG page (CDJ / vinyl jog) + PERFORM (DJ filter, spectrum)",
    "default": true,
@@ -97,8 +74,7 @@
     "vparams",
     "workbench-max",
     "perf-filter",
-    "tempojog-nolink",
-    "tripwire"
+    "tempojog-nolink"
    ],
    "mods": {
     "splash": {
@@ -857,70 +833,6 @@
        "what": "boot: the PERSONALIZE menu's constructor -> tj_pers_v (+ JOG DISPLAY)"
       }
      ]
-    },
-    "tripwire": {
-     "name": "tripwire",
-     "version": "1.0-test33b",
-     "os": "1.41",
-     "requires": [
-      "modarea"
-     ],
-     "description": "DIAGNOSTIC: paints every task stack at creation; every audio block checks the room left under the interrupted stack and one stack's bottom canary. A stack about to run out (or already overrun) stops the unit with an exception screen (57AC...) that names the task.",
-     "generated_by": "mods/tripwire/make_patch.py",
-     "links": {},
-     "symbols": {
-      "tw_mk": "0x444f43d0",
-      "tw_blk_hook": "0x444f43e6",
-      "tw_end_hook": "0x444f43f8",
-      "tw_create": "0x444f45bc",
-      "tw_isr": "0x444f465e",
-      "tw_exit": "0x444f473e",
-      "tw_base": "0x444f4834",
-      "tw_end": "0x444f47f4",
-      "tw_entry": "0x444f47b4",
-      "tw_n": "0x444f47b0",
-      "tw_rot": "0x444f47ac",
-      "tw_blk": "0x444f47a8",
-      "tw_skip": "0x444f47a4",
-      "tw_least": "0x444f47a0",
-      "tw_lix": "0x444f479c",
-      "tw_cur": "0x444f4798"
-     },
-     "patches": [
-      {
-       "section": 3,
-       "addr": "0X40358B00",
-       "len": 1188,
-       "append": true,
-       "hex": "2f0f4eb9444f45bc588f202f000c72fc4ef940001646c1b9fc04c0102f0e4eb9444f465e588f4e752f0e4eb9444f473e588f4cee3fffff5c4e754fefffdc226f003048d77c3c202f002c45e9000c46fc27002839444f47b042837410428149f9444f48344bf9444f47f4b284660000de47f9444f4834781049f9444f47f4b882660c2c4c2a4b91c8b1c1660000f8720fb2826500010620732c0041e81000222f0028740c4bf30c00216f00340004e5a92400280975820684000000ac82824282008157ac000020812155000822340c0092b30c0047f9444f47b447f30c002141000c21530010216f0038001421690008001821690004001c42a8002442a80020260a5883b6b40c006300009c2039444f47a02239444f47b048404240738182802039444f479ce18871c082802039444f47a8e188214100282239444f47a4738180812140002c2e484afc60feb081672e20741c0026751c0097c8b7fc000013ff631cb7c363184de810002a100c855ac0ffee660a5888b1ce66f0260b240152816000fee8281e989db0886708b88363042604240852886000fef0240978fcc48420426000fefab5c46400ff627202b2826700ff5a221208010000662a2441d5fcbffffc00b5fc00347bff630ed5fcfbb1cb40b5fc00020000640cb2a90008670621812c20528224436000ff164fefffec70fc206f001848d70c1cc0a80014222800102240d3c1b1c1653eb1c9643a200874fc0680ffffffc0c0822441b08a622c40c346fc27002439444f47b0428045f9444f4834264ab082661a7810b880661c52b9444f47a4603a200960ce24fc5ac0ffee60c8b29a67e2528060da45f9444f47f4508825890c0027810c0043f9444f47b423900c00b0826608528223c2444f47b046c34cd70c1c4fef00144e754fefffec701048d70c1c2439444f47b0226f001852b9444f47a823c0444f47984a82670000b241f9444f483442802209244806810000000c47f9444f47f42618b283633cb2b30c006236204191c323c0444f4798b1f9444f47a0640c23c8444f47a023c0444f479cb1fc0000034b62162f082f012f092f00487800014ebafd2e5280b08266b82239444f47ac20015280b4806202428020721c0023c0444f47ac26084282068300000040428028100c845ac0ffee67084a806602240852805888b1c366e84a80670e2f002f022f092f014878000260a64cd70c1c4fef00144e752239444f4798700f2f032f02b081654441f9444f483493c9428020701c00240806820000008026100c835ac0ffee67084a806602224852805888b48866e84a8067122f002f092f2f00142f01487800034ebafc7a241f261f4e7500000010000000000000ffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-       "ram": "0x444f43d0",
-       "what": "(mod area) tw.c"
-      },
-      {
-       "section": 3,
-       "addr": "0X40001640",
-       "len": 6,
-       "expect_sha256": "a3c4dbcdce0dda5f368b933611244127f5a172ce18f1d71599a477229894e61b",
-       "hex": "4ef9444f43d0",
-       "what": "task create (tcb, entry, prio, stack, size): register and paint the stack, then stock"
-      },
-      {
-       "section": 3,
-       "addr": "0X400A3864",
-       "len": 6,
-       "expect_sha256": "61b51cb75991776fb8f9cea4f671850acb59621f340a5a735f6215b5cd015ca7",
-       "hex": "4eb9444f43e6",
-       "what": "audio interrupt, registers saved: the stack guard and one canary a block"
-      },
-      {
-       "section": 3,
-       "addr": "0X400A54A0",
-       "len": 6,
-       "expect_sha256": "a59f9dcdbc55d669de5da670c1fd1d3494b963569219fc7f44ff031ebd537d14",
-       "hex": "4eb9444f43f8",
-       "what": "audio interrupt, before its registers come back: the interrupted stack's canary (an overrun by this block)"
-      }
-     ]
     }
    },
    "variants": {
@@ -1291,14 +1203,6 @@
     {
      "sha256": "3fc2498145172892973c37b22a1856350dba9d2c8020d2315cf898b0a813d1d7",
      "name": "Performance Mods TEST36b"
-    },
-    {
-     "sha256": "2cf8b13e6554d1fc9886f5e608e2e5365f5a2cee28108e5188eded0aedf8bdc9",
-     "name": "core + tripwire"
-    },
-    {
-     "sha256": "2b82b76c40b36e5cb632b98a2291bacc6a6175aa9b746763087b3e4822bf5df3",
-     "name": "Performance Mods TEST36b + tripwire"
     }
    ]
   },
@@ -1315,8 +1219,7 @@
     "vparams",
     "workbench-max",
     "perf-filter",
-    "tempojog-nolink",
-    "tripwire"
+    "tempojog-nolink"
    ],
    "mods": {
     "splash": {
@@ -2077,70 +1980,6 @@
        "what": "boot: the PERSONALIZE menu's constructor -> tj_pers_v (+ JOG DISPLAY)"
       }
      ]
-    },
-    "tripwire": {
-     "name": "tripwire",
-     "version": "1.0-test33b",
-     "os": "1.42",
-     "requires": [
-      "modarea"
-     ],
-     "description": "DIAGNOSTIC: paints every task stack at creation; every audio block checks the room left under the interrupted stack and one stack's bottom canary. A stack about to run out (or already overrun) stops the unit with an exception screen (57AC...) that names the task.",
-     "generated_by": "mods/tripwire/make_patch.py",
-     "links": {},
-     "symbols": {
-      "tw_mk": "0x444f53d0",
-      "tw_blk_hook": "0x444f53e6",
-      "tw_end_hook": "0x444f53f8",
-      "tw_create": "0x444f55bc",
-      "tw_isr": "0x444f565e",
-      "tw_exit": "0x444f573e",
-      "tw_base": "0x444f5834",
-      "tw_end": "0x444f57f4",
-      "tw_entry": "0x444f57b4",
-      "tw_n": "0x444f57b0",
-      "tw_rot": "0x444f57ac",
-      "tw_blk": "0x444f57a8",
-      "tw_skip": "0x444f57a4",
-      "tw_least": "0x444f57a0",
-      "tw_lix": "0x444f579c",
-      "tw_cur": "0x444f5798"
-     },
-     "patches": [
-      {
-       "section": 3,
-       "addr": "0X40359B00",
-       "len": 1188,
-       "append": true,
-       "hex": "2f0f4eb9444f55bc588f202f000c72fc4ef940001646c1b9fc04c0102f0e4eb9444f565e588f4e752f0e4eb9444f573e588f4cee3fffff5c4e754fefffdc226f003048d77c3c202f002c45e9000c46fc27002839444f57b042837410428149f9444f58344bf9444f57f4b284660000de47f9444f5834781049f9444f57f4b882660c2c4c2a4b91c8b1c1660000f8720fb2826500010620732c0041e81000222f0028740c4bf30c00216f00340004e5a92400280975820684000000ac82824282008157ac000020812155000822340c0092b30c0047f9444f57b447f30c002141000c21530010216f0038001421690008001821690004001c42a8002442a80020260a5883b6b40c006300009c2039444f57a02239444f57b048404240738182802039444f579ce18871c082802039444f57a8e188214100282239444f57a4738180812140002c2e484afc60feb081672e20741c0026751c0097c8b7fc000013ff631cb7c363184de810002a100c855ac0ffee660a5888b1ce66f0260b240152816000fee8281e989db0886708b88363042604240852886000fef0240978fcc48420426000fefab5c46400ff627202b2826700ff5a221208010000662a2441d5fcbffffc00b5fc00348bff630ed5fcfbb1bb40b5fc00020000640cb2a90008670621812c20528224436000ff164fefffec70fc206f001848d70c1cc0a80014222800102240d3c1b1c1653eb1c9643a200874fc0680ffffffc0c0822441b08a622c40c346fc27002439444f57b0428045f9444f5834264ab082661a7810b880661c52b9444f57a4603a200960ce24fc5ac0ffee60c8b29a67e2528060da45f9444f57f4508825890c0027810c0043f9444f57b423900c00b0826608528223c2444f57b046c34cd70c1c4fef00144e754fefffec701048d70c1c2439444f57b0226f001852b9444f57a823c0444f57984a82670000b241f9444f583442802209244806810000000c47f9444f57f42618b283633cb2b30c006236204191c323c0444f5798b1f9444f57a0640c23c8444f57a023c0444f579cb1fc0000034b62162f082f012f092f00487800014ebafd2e5280b08266b82239444f57ac20015280b4806202428020721c0023c0444f57ac26084282068300000040428028100c845ac0ffee67084a806602240852805888b1c366e84a80670e2f002f022f092f014878000260a64cd70c1c4fef00144e752239444f5798700f2f032f02b081654441f9444f583493c9428020701c00240806820000008026100c835ac0ffee67084a806602224852805888b48866e84a8067122f002f092f2f00142f01487800034ebafc7a241f261f4e7500000010000000000000ffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-       "ram": "0x444f53d0",
-       "what": "(mod area) tw.c"
-      },
-      {
-       "section": 3,
-       "addr": "0X40001640",
-       "len": 6,
-       "expect_sha256": "a3c4dbcdce0dda5f368b933611244127f5a172ce18f1d71599a477229894e61b",
-       "hex": "4ef9444f53d0",
-       "what": "task create (tcb, entry, prio, stack, size): register and paint the stack, then stock"
-      },
-      {
-       "section": 3,
-       "addr": "0X400A38DC",
-       "len": 6,
-       "expect_sha256": "61b51cb75991776fb8f9cea4f671850acb59621f340a5a735f6215b5cd015ca7",
-       "hex": "4eb9444f53e6",
-       "what": "audio interrupt, registers saved: the stack guard and one canary a block"
-      },
-      {
-       "section": 3,
-       "addr": "0X400A5518",
-       "len": 6,
-       "expect_sha256": "a59f9dcdbc55d669de5da670c1fd1d3494b963569219fc7f44ff031ebd537d14",
-       "hex": "4eb9444f53f8",
-       "what": "audio interrupt, before its registers come back: the interrupted stack's canary (an overrun by this block)"
-      }
-     ]
     }
    },
    "variants": {
@@ -2511,14 +2350,6 @@
     {
      "sha256": "6ed6b99649f73fc25def204e68a5f47d51a4a86ad50f1348ad6e42969e511293",
      "name": "Performance Mods TEST36b"
-    },
-    {
-     "sha256": "fe5994ade8e1d79954a3f186abc9f32d69486c8f601dbd814330b91313d07653",
-     "name": "core + tripwire"
-    },
-    {
-     "sha256": "1d611e2357fabf5a918ab7b5df7d04fa4673e12f71fdeca828da9c2da786f72f",
-     "name": "Performance Mods TEST36b + tripwire"
     }
    ]
   }
@@ -2546,24 +2377,6 @@
    "os": "1.42",
    "groups": [
     "perfmods"
-   ],
-   "except": []
-  },
-  {
-   "name": "Syntakt Performance Mods + crash tripwire (OS 1.41)",
-   "os": "1.41",
-   "groups": [
-    "perfmods",
-    "tripwire"
-   ],
-   "except": []
-  },
-  {
-   "name": "Syntakt Performance Mods + crash tripwire (OS 1.42)",
-   "os": "1.42",
-   "groups": [
-    "perfmods",
-    "tripwire"
    ],
    "except": []
   }

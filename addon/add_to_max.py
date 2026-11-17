@@ -36,6 +36,12 @@ def pick(title, kinds):
     return p
 
 
+def has_tripwire():
+    """the crash tripwire is offered only by builds whose catalog has it (the public copy's does not)"""
+    cat = Path(__file__).resolve().parents[1] / "builder" / "resources" / "catalog.json"
+    return any(g.get("id") == "tripwire" for g in json.loads(cat.read_text(encoding="utf-8"))["groups"])
+
+
 def ask_tripwire():
     try:
         import tkinter as tk
@@ -85,7 +91,7 @@ def main(argv):
     if not stock:
         print("No OS file picked: nothing done.")
         return 1
-    if len(args) < 2 and "--tripwire" not in argv:
+    if len(args) < 2 and "--tripwire" not in argv and has_tripwire():
         tripwire = ask_tripwire()
 
     m = json.loads(Path(manifest).read_text(encoding="utf-8"))

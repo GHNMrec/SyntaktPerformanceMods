@@ -14,6 +14,8 @@ for osv, tree in (("1.41", "os141"), ("1.42", "os142")):
     o = cat["oses"][osv]
     for name, src in (("tempojog-nolink", "tempojog/patch.json"), ("perf-filter", "perf-filter/patch.json"),
                       ("tripwire", "tripwire/patch.json")):
+        if not (ROOT / tree / "mods" / src).exists():      # the public copy has no tripwire source
+            continue
         fresh = json.loads((ROOT / tree / "mods" / src).read_text(encoding="utf-8"))
         if fresh.get("os") != osv:
             sys.exit(f"{tree}/mods/{name}/patch.json is for OS {fresh.get('os')}, not {osv}")

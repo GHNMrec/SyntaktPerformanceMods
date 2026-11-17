@@ -10,5 +10,5 @@ The jog mod is built on top of other people's open work. What comes from where:
 | The public Syntakt MAX 1.0 mod list (read by `addon/perfmods_addon.py`, not included) | Kári Garðarsson's MAX integration | MIT (repository) | see MAX's own `ATTRIBUTION.md` |
 
 Déjà Vu's behaviour is inspired by Mutable Instruments Marbles, as credited by Workbench; no Mutable Instruments
-code is included. The jog mod itself (JOG page, LINK, PERFORM, tripwire, LiveLink bridge) is this repository's own work.
+code is included. The jog mod itself (JOG page, LINK, PERFORM, LiveLink bridge) is this repository's own work.
 Elektron firmware stays Elektron's proprietary work; see `LEGAL.md`.

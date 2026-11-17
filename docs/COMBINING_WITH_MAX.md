@@ -39,7 +39,7 @@ python addon/perfmods_addon.py --manifest max-1.0-manifest.json --stock Syntakt_
   manifest's golden hash. Do this first: it proves the builder reproduces your MAX byte for byte (for the public
   MAX 1.0 it prints `IDENTICAL`).
 * `--dry-run` merges and runs every check without writing a file. `--write-manifest merged.json` also saves the
-  merged list so you can read exactly what changed. `--tripwire` adds the crash tripwire too.
+  merged list so you can read exactly what changed.
 * `--stock` must be the official file the manifest names (its SHA-256 is checked).
 * It needs `elektron-firmware-tool` (see [BUILDING_FROM_SOURCE.md](BUILDING_FROM_SOURCE.md) or copy the `.exe` from
   MAX's own builder `resources/` folder; point `EFT_BIN` at it or put it in `builder/resources/`).

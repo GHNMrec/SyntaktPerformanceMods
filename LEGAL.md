@@ -11,5 +11,5 @@
 - Syntakt and Elektron are trademarks of their owners. No Elektron affiliation or endorsement is claimed.
 - Third-party code and credits: see `THIRD_PARTY_NOTICES.md` and `licenses/`.
 - **This repository has no licence of its own yet.** Until its owner adds one, the jog mod's own code
-  (`os*/mods/tempojog`, `os*/mods/tripwire`, `livelink/`, `addon/`, `tools/`) is "all rights reserved". If you are
+  (`os*/mods/tempojog`, `livelink/`, `addon/`, `tools/`) is "all rights reserved". If you are
   a collaborator on the private repository, that means: use it, don't republish it.

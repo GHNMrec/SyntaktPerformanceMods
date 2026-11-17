@@ -14,6 +14,10 @@ const catalogP = fetch("catalog.json", { cache: "no-store" }).then((r) => {
   if (!r.ok) throw new Error("catalog.json missing");
   return r.json();
 });
+// the crash tripwire is offered only by builds whose mod list has it (the public page's list does not)
+const hasTrip = (cat) => cat.groups.some((g) => g.id === "tripwire");
+catalogP.then((cat) => { const row = $("trip-row"); if (row) row.hidden = !hasTrip(cat); }, () => {});
+const tripOn = () => { const row = $("trip-row"); return !!row && !row.hidden && $("mtrip").checked; };
 
 // ---- step 1: the OS file
 function pickFile(input, drop, onFile) {
@@ -159,7 +163,7 @@ $("build").addEventListener("click", () => {
   const w = new Worker(new URL("./worker.js", import.meta.url), { type: "module" });
   const stockCopy = state.stock.slice().buffer;
   w.postMessage({ mode: state.mode, stock: stockCopy, groups: [...state.chosen], manifest: state.manifest,
-                  tripwire: $("mtrip").checked }, [stockCopy]);
+                  tripwire: tripOn() }, [stockCopy]);
   w.onmessage = ({ data }) => {
     if (data.type === "progress") {
       $("status").textContent = data.text;
@@ -191,7 +195,7 @@ $("build").addEventListener("click", () => {
 });
 
 function outName(osv) {
-  const trip = state.mode === "max" ? $("mtrip").checked : state.chosen.has("tripwire");
+  const trip = state.mode === "max" ? tripOn() : state.chosen.has("tripwire");
   const base = state.mode === "max" ? "Syntakt_MAX_PerfMods" : (state.chosen.has("perfmods") ? "Syntakt_PerfMods" : "Syntakt_custom");
   return `${base}_OS${osv}${trip ? "_tripwire" : ""}.syx`;
 }

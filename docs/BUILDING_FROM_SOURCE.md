@@ -20,7 +20,7 @@ Point `EFT_BIN` at the binary if it is somewhere else.
 ```
 cd os141
 python tools/unpack/unpack_stock.py            # writes unpacked/ (git-ignored: it IS firmware)
-python -m pytest -q                            # JOG, round 3, Performance Mods, perf-filter, builder, tripwire (+ add-on tests with MAX_MANIFEST)
+python -m pytest -q                            # JOG, round 3, Performance Mods, perf-filter, builder (+ add-on tests with MAX_MANIFEST)
 ```
 
 Same in `os142`. The tests run the real compiled code in a 68k emulator (`unicorn`) on your stock image. The
@@ -36,7 +36,6 @@ binutils-m68k-linux-gnu`, then:
 cd os141
 EFT_BIN=... M68K_ROOT=/ python mods/tempojog/make_patch.py 1.41
 EFT_BIN=... M68K_ROOT=/ python mods/perf-filter/make_patch.py 1.41
-EFT_BIN=... M68K_ROOT=/ python mods/tripwire/make_patch.py 1.41
 ```
 
 The jog is built with `-DNOLINK` (LINK is shelved: LINK's "no bridge" state becomes constants, so the LINK code and

@@ -35,8 +35,7 @@ For a Syntakt running Elektron's own OS (no MAX).
 
 1. Double-click  "Option A - Build Performance Mods.bat".
 2. Pick your official OS .syx (1.41 or 1.42).
-3. "Syntakt Performance Mods" is ticked already. The crash tripwire is optional (a diagnostic: if the unit ever
-   crashes it stops on a screen starting 57AC instead of freezing; photograph it).
+3. "Syntakt Performance Mods" is ticked already.
 4. Build. The new .syx goes where you choose. Flash it.
 
 
@@ -50,7 +49,7 @@ You need two files:
   * your official OS .syx, the one that manifest was made for (MAX 1.0 is OS 1.41).
 
 1. Double-click  "Option B - Add to my MAX build.bat".
-2. Pick the manifest, then the OS file. Say yes or no to the tripwire.
+2. Pick the manifest, then the OS file.
 3. It runs three steps and stops at the first that fails, writing nothing:
      1/3  rebuilds your MAX alone and checks it is IDENTICAL to the manifest's golden hash
           (proves your files are the right ones);

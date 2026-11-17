@@ -6,5 +6,64 @@
  "exclude": [
   "livelink/*",
   "tools/package/private_words.json"
- ]
+ ],
+ "private_only": [
+  "os*/mods/tripwire/*",
+  "os*/tests/test_tripwire.py",
+  "release/*"
+ ],
+ "public_catalog_drop": [
+  "tripwire"
+ ],
+ "public_edits": [
+  [
+   "(?s)      <div class=\"mod\" style=\"border-top:0;margin-top:8px\" id=\"trip-row\" hidden>.*?\\n      </div>\\n",
+   ""
+  ],
+  [
+   "3\\. \"Syntakt Performance Mods\" is ticked already\\. The crash tripwire is optional \\(a diagnostic: if the unit ever\\r?\\n   crashes it stops on a screen starting 57AC instead of freezing; photograph it\\)\\.",
+   "3. \"Syntakt Performance Mods\" is ticked already."
+  ],
+  [
+   " Say yes or no to the tripwire\\.",
+   ""
+  ],
+  [
+   "Presets: Syntakt Performance Mods \\(OS 1\\.41 / 1\\.42\\), the same \\+ crash tripwire\\.",
+   "Presets: Syntakt Performance Mods (OS 1.41 / 1.42)."
+  ],
+  [
+   "core, Performance Mods;",
+   "core, Performance Mods;"
+  ],
+  [
+   "\\(tempojog, perf-filter, tripwire and the core mods\\)",
+   "(tempojog, perf-filter and the core mods)"
+  ],
+  [
+   "`os\\*/mods/tripwire`, ",
+   ""
+  ],
+  [
+   "PERFORM, ",
+   "PERFORM, "
+  ],
+  [
+   " `--tripwire` adds the crash tripwire too\\.",
+   ""
+  ],
+  [
+   ", tripwire \\(\\+",
+   " (+"
+  ],
+  [
+   "Three TEST35a files were checked: the Performance Mods alone \\(OS 1\\.41 and 1\\.42\\), and the author\\'s set \\+ crash\\s+tripwire with PERFORM on his master filter \\(OS 1\\.41\\)\\.",
+   "Two TEST35a files were checked: the Performance Mods alone (OS 1.41 and 1.42)."
+  ],
+  [
+   "pass on all three\\.",
+   "pass on both."
+  ]
+ ],
+ "public_line_drop": "^[^\\n]*tripwire[^\\n]*\\n"
 }

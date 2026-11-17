@@ -70,7 +70,6 @@ Groups:
 * **Core:** always on. The mod area, the splash, the parameter hooks, the MIDI id guard and Workbench's SY CHORD
   bank.
 * **Syntakt Performance Mods:** the JOG page and PERFORM's own filter (*perf-filter*).
-* **Crash tripwire:** an optional diagnostic.
 
 One-time setup: put `elektron-firmware-tool.exe` in `builder/resources/` (details in
 [builder/README.txt](builder/README.txt)).
@@ -105,9 +104,9 @@ The emulator tests run the real code against your stock image. See
 
 | Path | What |
 |---|---|
-| `builder/` | the offline builder (GUI + core) and its small catalog: core, Performance Mods, tripwire; OS 1.41 and 1.42 |
+| `builder/` | the offline builder (GUI + core) and its small catalog: core, Performance Mods; OS 1.41 and 1.42 |
 | `addon/` | `perfmods_addon.py`: merge the Performance Mods into another MAX manifest |
-| `os141/`, `os142/` | the per-OS source trees: `mods/` (tempojog, perf-filter, tripwire and the core mods), `tests/`, `tools/` (emulator, unpacker, area layout) |
+| `os141/`, `os142/` | the per-OS source trees: `mods/` (tempojog, perf-filter and the core mods), `tests/`, `tools/` (emulator, unpacker, area layout) |
 | `livelink/` | the LiveLink CDJ bridge: **shelved**, and not in the public copy. The jog is built without LINK |
 | `tools/catalog/` | `refresh_catalog.py` puts the rebuilt patches into the catalog; `make_trim_catalog.py` made the catalog |
 | `tools/hooks/` | the pre-commit hook that refuses firmware |
@@ -120,6 +119,6 @@ The emulator tests run the real code against your stock image. See
 
 ## What is not here
 
-The other MAX mods. This repository is only
+The other MAX mods (arp, grid, FM4, Sidtakt, compressor, the FX-page master filter, ...). This repository is only
 the Performance Mods and what they need to run, so it can live apart from them. It stays combinable: that is what
 the add-on is for.

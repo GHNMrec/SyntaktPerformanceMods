@@ -19,9 +19,8 @@ Groups
   Syntakt Performance Mods  the JOG page (hold [TEMPO]) and PERFORM ([RIGHT]): a smooth DJ filter on the analog FX
                             block with its curve over the mix's spectrum (perf-filter: no page, no MIDI). No LINK.
                             See docs/USER_GUIDE.md.
-  Crash tripwire            diagnostic: stops on an exception screen starting 57AC instead of a silent freeze.
 
-Presets: Syntakt Performance Mods (OS 1.41 / 1.42), the same + crash tripwire.
+Presets: Syntakt Performance Mods (OS 1.41 / 1.42).
 
 Everything is EXPERIMENTAL: back up your projects and samples and keep a known-good official .syx for recovery.
 Your own test notes per group are kept in Documents\SyntaktJOG_builder_notes.json.
