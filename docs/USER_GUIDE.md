@@ -22,8 +22,8 @@ touches the platter (BRAKE, HOLD, START).
 
 * **VINYL:** a record with grooves and strobe dots. The strobe dots stand still at the set tempo and turn while the
   jog moves it.
-* **CDJ:** a CDJ jog display. The inside (the marker) turns with the platter; the outer dashed ring and the tick
-  ring stand still and turn only while the jog moves the tempo, as the vinyl's strobe dots do.
+* **CDJ:** a CDJ jog display. The inside (the marker) turns with the platter. The outer ring of strobe dots (the
+  same as VINYL's) and the tick ring stand still and turn only while the jog moves the tempo.
 
 ## Knobs
 

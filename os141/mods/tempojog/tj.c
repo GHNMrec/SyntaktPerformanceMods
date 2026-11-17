@@ -884,9 +884,12 @@ static void platter(u32 bar, s32 touch)
         }
         ray(bar, 10, 21);                       /* the marker: once a bar, 12 o'clock = the one */
     } else {                                    /* CDJ: the jog display */
-        u32 st = (u32)(tj_strobe >> 7);         /* TEST36: the outer rings move as the vinyl's strobe dots: */
-        circle(26);                             /* still at the set tempo, turning while the jog moves it */
-        dashes(24, st, 12, 154);
+        u32 st = (u32)(tj_strobe >> 7);         /* TEST36b: the vinyl's strobe dots, the same ring: still at the */
+        circle(26);                             /* set tempo, turning while the jog moves it; the tick ring too */
+        for (i = 0; i < 20; i++) {
+            pt(376, (u32)(i * 65536 / 20) + st, &x, &y);
+            px(x, y);
+        }
         for (i = 0; i < 32; i += 2)
             ray(((u32)i << 11) + st, 20, 21);
         for (i = 17; i <= 22; i++) {            /* the operation marker */

@@ -407,11 +407,11 @@ def test_screen(rig):
     assert on(p, (-12, -17)) == [1, 1] and on(p, (12, 17)) == [0, 0]
     uc.mem_write(sym["tj_disp"], b"\x01")                   # TEST36: CDJ: the outer rings turn only with the jog
     rings = lambda p: {(x, y) for x in range(4, 57) for y in range(9, 62)   # noqa: E731
-                       if 23.5 <= ((x - 30) ** 2 + (y - 35) ** 2) ** 0.5 <= 24.5 and p(x, y)}
+                       if 22.5 <= ((x - 30) ** 2 + (y - 35) ** 2) ** 0.5 <= 24.5 and p(x, y)}
     inner = lambda p: {(x, y) for x in range(4, 57) for y in range(9, 62)   # noqa: E731
                        if ((x - 30) ** 2 + (y - 35) ** 2) ** 0.5 <= 18.5 and p(x, y)}
     a, b = shot(0), shot(BEAT // 3)
-    assert len(rings(a)) > 40 and rings(a) == rings(b)        # the platter turning: the outer rings stay
+    assert len(rings(a)) >= 18 and rings(a) == rings(b)       # TEST36b: VINYL's 20 strobe dots; the platter turning: they stay
     assert inner(a) != inner(b)                               # the inside turns with the platter
     uc.mem_write(sym["tj_strobe"], struct.pack(">i", 3000 << 7))   # the jog moved the tempo: they turn
     c = shot(0)

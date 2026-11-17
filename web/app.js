@@ -10,7 +10,7 @@ const LEGEND = {
 const state = { cat: null, stock: null, stockName: "", osv: null, mode: "stock", chosen: new Set(), manifest: null,
                 built: null };
 
-const catalogP = fetch("catalog.json").then((r) => {
+const catalogP = fetch("catalog.json", { cache: "no-store" }).then((r) => {
   if (!r.ok) throw new Error("catalog.json missing");
   return r.json();
 });
@@ -43,6 +43,7 @@ pickFile($("file"), $("drop"), async (f) => {
   }
   state.stock = bytes; state.stockName = f.name; state.osv = osv;
   $("osmsg").innerHTML = `<span class="ok">✓ Recognised: official Syntakt OS ${osv}</span>`;
+  if (cat.version) $("ver").textContent = "Mods version " + cat.version;
   renderMods();
   refresh();
 });
@@ -170,7 +171,7 @@ $("build").addEventListener("click", () => {
       state.built = { bytes: new Uint8Array(data.bytes), sha256: data.sha256, os: data.os,
                       name: outName(data.os) };
       $("status").textContent = "Done. Every patch guard passed, no byte is patched twice, and the boot margin is safe.";
-      $("rinfo").textContent = `OS ${data.os}, boot margin ${data.margin.toLocaleString()} bytes` + (data.known ? `, known build: ${data.known}` : "");
+      $("rinfo").textContent = (state.cat.version ? state.cat.version + ", " : "") + `OS ${data.os}, boot margin ${data.margin.toLocaleString()} bytes` + (data.known ? `, known build: ${data.known}` : "");
       $("rsha").textContent = data.sha256;
       $("result").hidden = false;
       refresh();

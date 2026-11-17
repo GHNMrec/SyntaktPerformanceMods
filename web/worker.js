@@ -2,11 +2,11 @@
 import * as B from "./engine/builder.js";
 
 let eftP = null, catP = null;
-const eft = () => (eftP ??= fetch(new URL("./engine/eft.wasm", import.meta.url)).then((r) => {
+const eft = () => (eftP ??= fetch(new URL("./engine/eft.wasm", import.meta.url), { cache: "no-store" }).then((r) => {
   if (!r.ok) throw new B.BuildError("could not load the firmware tool (eft.wasm)");
   return r.arrayBuffer();
 }).then((b) => B.Eft.load(b)));
-const catalog = () => (catP ??= fetch(new URL("./catalog.json", import.meta.url)).then((r) => r.json()));
+const catalog = () => (catP ??= fetch(new URL("./catalog.json", import.meta.url), { cache: "no-store" }).then((r) => r.json()));
 
 const post = (type, data = {}, transfer = []) => self.postMessage({ type, ...data }, transfer);
 

@@ -7,7 +7,8 @@
 * **Tried on the author's unit:** TEST35a. His notes gave TEST36: PERFORM's own knobs (A filter, B RESO, nothing
   else; the knob letters in its header), a slower filter knob with a hard stop at each end, RANGE 6 detents a step,
   CDJ's outer rings turning only with the jog, and the push brake in both looks.
-* **Not yet on a unit:** TEST36.
+* **Not yet on a unit:** TEST36b (TEST36 + CDJ's outer ring is VINYL's strobe dots; the page names the mods'
+  version and recognises the TEST36b builds, and never uses a cached mod list).
 * **Shelved:** LINK.
 
 ## Checked in the emulator (this repository's tests, per OS tree)
