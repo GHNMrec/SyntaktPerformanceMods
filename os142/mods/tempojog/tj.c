@@ -149,6 +149,10 @@ s32 tj_open_t DATA = 0;                         /* the tempo when JOG opened ([F
 s8 tj_fpos DATA = 0;                            /* PERFORM's DJ filter: -63 LP closed .. 0 THRU .. +63 HP (drawn) */
 /* TEST35 (Syntakt Performance Mods) */
 s32 tj_fp DATA = 0;                             /* the DJ filter's fine position: -4032 .. 4032 */
+s8 tj_fhold DATA = 0;                           /* TEST37: THRU reached coming back from a side: -1 LP, +1 HP, 0 free */
+u8 tj_fpush DATA = 0;                           /* TEST37: detents pushed on past THRU towards the other side */
+u16 tj_ag DATA = 0;                             /* TEST37c: blocks knob A's turns are still ignored after a push */
+#define AG_BLOCKS 375                           /* 0.25 s */
 s32 tj_fq DATA = 0, tj_fqt DATA = 0;            /* the cutoff word (FREQ << 8 | FINE) now and its target */
 volatile u8 tj_fown DATA = 0;                   /* PERFORM owns the cutoff: its side (1 LP2, 3 HP2), else 0 */
 u8 tj_fb DATA = 0;                              /* the FREQ byte PERFORM wrote last */
@@ -522,6 +526,8 @@ s32 tj_rate_c(void)
         want_redraw();
     if (tj_lease) {                             /* ~30 redraws a second while JOG is up and something moves */
         tj_lease--;
+        if (tj_ag)
+            tj_ag--;
         if (++tj_tick >= (tj_page ? 100u : 50u)) {   /* TEST35: PERFORM 15 a second (its spectrum) */
             tj_tick = 0;
             if (st == 1 || r != t || tj_sp != Q || LIVE() || tj_gl || tj_page)
@@ -626,6 +632,8 @@ s32 tj_enc_c(void *view, const u8 *ev)
     if (tj_page) {                              /* TEST36: PERFORM owns its knobs: A the DJ filter, B its RESO; */
         if (n != 1 && n != 2)                   /* the others (and [FUNC] + G / H) leave JOG alone here */
             return 1;
+        if (n == 1 && (held || tj_ag))         /* TEST37c: A pushed (or just let go): a turn is a slip, not a move */
+            return 1;
         tj_perf_knob(n, d);
         tj_lease = 3000;
         REDRAW(view);
@@ -727,6 +735,7 @@ s32 tj_key_c(void *view, const u8 *ev)
             return 1;
         }
         if (tj_page) {                          /* TEST36: PERFORM: A pushed = the filter's snap, not a touch */
+            tj_ag = AG_BLOCKS;                  /* TEST37c: A's turns ignored while pushed and 0.25 s after */
             tj_keys(view, code, (f & 1) && !(f & 8));
             return 1;
         }
@@ -761,6 +770,7 @@ void tj_gone(void *view)
         tj_view = 0;
         tj_touch = tj_func = 0;
         tj_lease = 0;
+        tj_fown = 0;                            /* TEST37: leaving JOG gives the filter back: no glide in the background */
     }
 }
 
@@ -1236,6 +1246,7 @@ PF2 void tj_commit(void *view)
 #define MF_RESO 2
 #define MF_ON 4
 #define FSIDE 4032                              /* tj_fp's range a side */
+#define FPUSH 6                                 /* TEST37: the centre notch, in detents */
 PF2 static void flt(void)
 {
     u8 *p = tj_mfp;
@@ -1244,9 +1255,9 @@ PF2 static void flt(void)
         return;
     tj_fpos = (s8)(f / 64);
     tj_fown = 0;                                /* (the interrupt waits while this changes it) */
-    if (side == 7) {
-        p[MF_TYPE] = 7;
-        p[MF_ON] = 1;
+    if (side == 7) {                            /* TEST37c: THRU = bypassed: the filter off, the mix back on its */
+        p[MF_TYPE] = 7;                         /* own routing (not through the analog FX block), no CPU */
+        p[MF_ON] = 0;
         return;
     }
     tj_fqt = side == 1 ? 0x7F00 + f * (119 * 256) / FSIDE : f * (110 * 256) / FSIDE;
@@ -1268,6 +1279,8 @@ PF2 void tj_perf_enter(void)                     /* B starts where the master fi
     tj_fp = 0;
     tj_fpos = 0;
     tj_fown = 0;
+    tj_fhold = 0;                               /* TEST37: a fresh start turns freely */
+    tj_fpush = 0;
     if (!p || !p[MF_ON])
         return;
     w = *(s32 *)(p - 19) >> 16;                 /* where the filter is now (its smoothed FREQ) */
@@ -1279,15 +1292,25 @@ PF2 void tj_perf_enter(void)                     /* B starts where the master fi
     tj_fpos = (s8)(tj_fp / 64);
 }
 
-PF2 void tj_perf_knob(s32 n, s32 d)
+void tj_perf_knob(s32 n, s32 d)                  /* TEST37: main chunk (tools is full) */
 {
     u8 *p = tj_mfp;
     if (!p)
         return;
-    if (n == 1) {                               /* TEST36: A. slow: 42 a detent (96 detents a side), fast: 84; */
-        s32 e = clamp(d, -4, 4) * (d > 2 || d < -2 ? 84 : 42);   /* an event moves 4 detents at most */
-        if (tj_fp && ((tj_fp < 0) != (tj_fp + e < 0)) && tj_fp + e)
-            e = -tj_fp;                         /* a sweep stops at THRU before it crosses to the other side */
+    if (n == 1) {                               /* TEST37: A. slow: 32 a detent (126 detents a side), fast: 64; */
+        s32 k = clamp(d, -4, 4);                /* an event moves 4 detents at most */
+        s32 e = k * (d > 2 || d < -2 ? 64 : 32);
+        if (!tj_fp && tj_fhold && (k < 0) == (tj_fhold > 0)) {
+            tj_fpush += (u8)(k < 0 ? -k : k);   /* back at THRU from a side: on to the other side only after */
+            if (tj_fpush < FPUSH)               /* FPUSH more detents (a centre notch); back the way it came */
+                return;                         /* turns freely */
+        }
+        if (tj_fp && (tj_fp + e == 0 || (tj_fp < 0) != (tj_fp + e < 0))) {
+            tj_fhold = tj_fp > 0 ? 1 : -1;      /* a sweep stops at THRU before it crosses to the other side */
+            e = -tj_fp;
+        } else
+            tj_fhold = 0;                       /* moving off THRU (or from it, the first twist): free */
+        tj_fpush = 0;
         tj_fp = clamp(tj_fp + e, -FSIDE, FSIDE);
         flt();
     } else                                      /* B: RESO, a step a detent (the filter glides it) */
@@ -1314,6 +1337,8 @@ PF2 void tj_tap(void)
     if (!s || !tj_spon)
         return;
     tj_spon--;
+    if (tj_page && tj_tick < 36)                /* TEST37c: only the 64 blocks before PERFORM's next redraw (what */
+        return;                                 /* its FFT reads): about a third less of the tap's CPU */
     {
         const volatile s32 *m = (const volatile s32 *)SPX;
         u32 w = tj_fw, dw = tj_dw, n = tj_dn, i;
@@ -1367,6 +1392,8 @@ PF2 s32 tj_keys(void *view, u32 code, s32 down)
             tj_fp = 0;
             tj_fpos = 0;
             tj_fown = 0;
+            tj_fhold = 0;                       /* TEST37: after the snap, the first twist is free */
+            tj_fpush = 0;
             if (tj_func)
                 tj_mfp[MF_ON] = 0;
             else if (tj_mfp[MF_ON])
@@ -1618,7 +1645,7 @@ void tj_perform(void *c, s32 dev)
         TEXT(c, F_LBL, 64, 57, 2, "%s", "NO MASTER FILTER");
     else if (!on || type == 7) {
         TEXT(c, F_LBL, 0, 57, 0, "%s", "PERFORM");
-        TEXT(c, F_LBL, 127, 57, 4, "%s", on ? "THRU (A)" : "FILTER OFF (A)");
+        TEXT(c, F_LBL, 127, 57, 4, "%s", type == 7 ? "THRU (A)" : "FILTER OFF (A)");   /* TEST37c: THRU is off */
     } else {
         w = *(s32 *)(p - 19) >> 16;
         TEXT(c, F_LBL, 0, 57, 0, "%s", type == 1 ? "LP2" : type == 3 ? "HP2" : "FLT");

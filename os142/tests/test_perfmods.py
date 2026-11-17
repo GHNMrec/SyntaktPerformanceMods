@@ -33,6 +33,7 @@ PF = J.ROOT / "mods" / "perf-filter" / "patch.json"
 MF = J.ROOT / "mods" / "master-filter" / "patch.json"
 pytestmark = pytest.mark.skipif(not (J.SEC3.exists() and J.SPEC.exists() and PF.exists()), reason="needs the image")
 VST = 0x454E_4C00 if P142 else 0x454E_3C00                                          # the FX CV routine's voice state (a4 = 0x454E3C5C)
+AG = 375
 FBUF = 0x47E0_0000                                            # a fake filter: smoothed FREQ at -19, the knob bytes
 
 
@@ -164,7 +165,7 @@ def test_perform_fine_filter(m):
     m.knob(1, -1)                                             # A left: on, LP2 at its open end at once
     (t, f, r, _, on), s = fl(m)
     assert (t, on, f, s) == (1, 1, 127, 0x7F00) and m.u8("tj_fown") == 1
-    assert m.s32("tj_fqt") == 0x7F00 - 42 * 119 * 256 // 4032
+    assert m.s32("tj_fqt") == 0x7F00 - 32 * 119 * 256 // 4032   # TEST37: 32 a detent
     for _ in range(400):
         m.tap()
     (t, f, r, _, on), s = fl(m)
@@ -185,14 +186,17 @@ def test_perform_fine_filter(m):
         if m.s32("tj_fp") >= 0:
             break
     assert k >= 10 and m.s32("tj_fp") == 0 and fl(m)[0][0] == 7 and m.u8("tj_fown") == 0
-    m.knob(1, 1)                                               # then HP2 from its open end
+    for _ in range(5):                                         # TEST37: the centre notch: 5 more detents stay
+        m.knob(1, 1)
+        assert m.s32("tj_fp") == 0 and fl(m)[0][0] == 7
+    m.knob(1, 1)                                               # the 6th: then HP2 from its open end
     (t, f, r, _, on), s = fl(m)
     assert t == 3 and s == 0 and f == 0
     m.knob(2, 1)
     m.knob(2, 9)                                               # B: RESO, at most 2 a fast event
     assert fl(m)[0][2] == 3
-    m.key(40, 1)                                               # A pushed: THRU
-    assert fl(m)[0][0] == 7 and fl(m)[0][4] == 1 and m.u8s("tj_fpos") == 0
+    m.key(40, 1)                                               # A pushed: THRU (TEST37c: bypassed, the filter off)
+    assert fl(m)[0][0] == 7 and fl(m)[0][4] == 0 and m.u8s("tj_fpos") == 0
     m.knob(1, 10)
     m.key(1, 1)
     m.key(40, 1)                                               # [FUNC] + A pushed: the filter off
@@ -289,6 +293,7 @@ def spectrum_peak(rig, f, amp=1 << 26):
     spec = struct.unpack(">I", uc.mem_read(sym["tj_spec"], 4))[0]
     assert spec
     ph = 0.0
+    uc.mem_write(sym["tj_tick"], struct.pack(">I", 99))       # TEST37c: the tap's window before a redraw
     for _ in range(80):                                       # 80 blocks of a sine (L = R)
         fr = b""
         for _ in range(32):
@@ -423,3 +428,51 @@ def test_perform_header_shows_the_cutoff_in_hz(rig, w):
     got = float(t[:-2]) if t.endswith("HZ") else float(t[:-1]) * 1000
     tol = 1.5 if want < 1000 else 100 if want < 10000 else 500
     assert abs(got - want) <= tol + want * 0.004, (t, want)
+
+
+def test_perform_centre_notch(m):
+    """TEST37: knob A stops at THRU coming back from a side and needs 6 more detents to cross; turning back the way
+    it came is free; a fresh start (PERFORM opened, A pushed) turns freely either way at once"""
+    perf(m, on=0)
+    m.knob(1, 1)                                               # the first twist from THRU: free (HP2)
+    assert m.s32("tj_fp") == 32
+    m.knob(1, -3)                                              # back: stops at THRU
+    assert m.s32("tj_fp") == 0
+    m.knob(1, 1)                                               # back the way it came: free
+    assert m.s32("tj_fp") == 32
+    m.knob(1, -1)
+    assert m.s32("tj_fp") == 0
+    m.knob(1, -4)
+    m.knob(1, -1)                                              # 5 detents into the notch: still THRU
+    assert m.s32("tj_fp") == 0
+    m.knob(1, -1)                                              # the 6th: LP2
+    assert m.s32("tj_fp") == -32
+    m.knob(1, 1)                                               # back to THRU from LP
+    m.key(40, 1)                                               # A pushed: THRU, and free again
+    m.uc.mem_write(m.sym["tj_ag"], bytes(2))                   # (0.25 s later)
+    m.knob(1, 1)
+    assert m.s32("tj_fp") == 32
+
+
+def test_perform_thru_is_bypass_and_push_guard(m):
+    """TEST37c: THRU (the centre, or A pushed) turns the filter OFF: the mix keeps its own routing; A's turns are
+    ignored while A is pushed and for 0.25 s after a push or a release (no slip off THRU / OFF)"""
+    perf(m, on=0)
+    m.knob(1, -2)
+    assert fl(m)[0][0] == 1 and fl(m)[0][4] == 1               # LP2, on
+    m.knob(1, 3)                                               # back to the centre: THRU = off
+    assert m.s32("tj_fp") == 0 and fl(m)[0][0] == 7 and fl(m)[0][4] == 0
+    m.knob(1, -1)                                              # (the notch: from LP back, LP is the free way)
+    assert fl(m)[0][4] == 1
+    m.key(40, 1)                                               # A pushed: THRU, off
+    assert fl(m)[0][4] == 0 and m.s32("tj_fp") == 0
+    m.knob(1, 1)                                               # a slip right after the push: nothing
+    m.knob(1, -1, held=1)
+    assert m.s32("tj_fp") == 0 and fl(m)[0][4] == 0
+    for _ in range(AG):                                        # 0.25 s of blocks (the guard runs out)
+        m.rate()
+    assert struct.unpack(">H", m.uc.mem_read(m.sym["tj_ag"], 2))[0] == 0
+    m.knob(1, -1, held=1)                                      # turning while pushed: still nothing
+    assert m.s32("tj_fp") == 0
+    m.knob(1, -1)                                              # a real turn: LP2 again
+    assert m.s32("tj_fp") == -32 and fl(m)[0][4] == 1
