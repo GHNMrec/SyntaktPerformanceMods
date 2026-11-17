@@ -77,14 +77,14 @@ One-time setup: put `elektron-firmware-tool.exe` in `builder/resources/` (detail
 
 ### 2. Added to somebody's MAX build
 
-Your buddy already runs Syntakt MAX (the public 1.0, or a later manifest)? `addon/perfmods_addon.py` does this:
+Already run Syntakt MAX (the public 1.0, or a later manifest)? `addon/perfmods_addon.py` does this:
 
-* reads *his* MAX mod list;
-* adds the Performance Mods next to his mods;
+* reads your MAX mod list;
+* adds the Performance Mods next to your mods;
 * builds one new `.syx` from *his* official OS file;
 * makes the mod area 128 KB (our code sits above MAX 1.0's 64 KB).
 
-Nothing goes on his FX track's pages. Read [docs/COMBINING_WITH_MAX.md](docs/COMBINING_WITH_MAX.md) first.
+Nothing goes on your FX track's pages. Read [docs/COMBINING_WITH_MAX.md](docs/COMBINING_WITH_MAX.md) first.
 
 ```
 python addon/perfmods_addon.py --manifest max-1.0-manifest.json --stock Syntakt_OS1.41.syx --verify-base
