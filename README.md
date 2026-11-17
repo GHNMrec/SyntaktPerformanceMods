@@ -120,6 +120,6 @@ The emulator tests run the real code against your stock image. See
 
 ## What is not here
 
-The other MAX mods (arp, grid, FM4, Sidtakt, compressor, the FX-page master filter, ...). This repository is only
+The other MAX mods. This repository is only
 the Performance Mods and what they need to run, so it can live apart from them. It stays combinable: that is what
 the add-on is for.
