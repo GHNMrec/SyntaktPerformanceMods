@@ -1508,7 +1508,7 @@ static const s8 CURVE[8][65] = {
  * screen, two 256-point FFTs in the drawing (6 kHz for the lows, 48 kHz for the highs, one a redraw), levels that
  * rise at once and fall slowly, on a fixed scale (so closing the filter shows the level going) tilted +3 dB an
  * octave. Nothing runs on other pages. */
-#define GY0  8                                  /* the graph: rows 8 .. 52, 0 dB at row 40 */
+#define GY0  15                                 /* the graph: rows 15 .. 52, 0 dB at row 40 (TEST38b: footer below) */
 #define GY1  52
 #define Y0DB 40
 #define LG_PX(u) ((u) / 9)                      /* 1/16 log2 of the power (0.19 dB) -> px (1.7 dB): 50 dB */
@@ -1670,20 +1670,18 @@ static s32 curve(s32 x, s32 xc, s32 hp, s32 reso)   /* px from the 0 dB row; xc 
     return a + (b - a) * f / 127;
 }
 
-PF __attribute__((noinline)) static void fbar(s32 x0, s32 x1, s32 y, s32 f)  /* the DJ filter: centre notch, filled toward the side in use */
+/* TEST38b: PERFORM's footer, as the OS's parameter pages: each value in the column of its knob (A B C D, 32 px
+ * each), the value over its name */
+PF __attribute__((noinline)) static void pcol(s32 k, const char *v, const char *n)
 {
-    s32 m = (x0 + x1) / 2, e = m + f * (x1 - m) / 63;
-    FILL(cv, x0, y, x1, y, 1);
-    FILL(cv, m, y - 2, m, y + 2, 1);
-    FILL(cv, x0, y - 1, x0, y + 1, 1);
-    FILL(cv, x1, y - 1, x1, y + 1, 1);
-    if (e != m)
-        FILL(cv, e < m ? e : m, y + 1, e < m ? m : e, y + 2, 1);
+    TEXT(cv, F_LBL, 16 + 32 * k, 7, 2, "%s", v);
+    TEXT(cv, F_SML, 16 + 32 * k, 0, 2, "%s", n);
 }
 
 void tj_perform(void *c, s32 dev)
 {
-    char b[16], *q;
+    char b[16], r[8];
+    const char *q;
     u8 *p = tj_mfp;
     spec_t *s = tj_spec;
     s32 x, y, py = 0, on = p && p[MF_ON], type = p ? p[MF_TYPE] : 7, xc = 0, w, pk = 0, lv, top;
@@ -1692,36 +1690,27 @@ void tj_perform(void *c, s32 dev)
     if (!s)
         s = tj_spec = spec_new();
     tj_spon = 300;                              /* the tap runs 0.2 s past the last redraw (then PERFORM is gone) */
-    if (!p)
+    if (!p) {
         TEXT(c, F_LBL, 64, 57, 2, "%s", "NO MASTER FILTER");
-    else if (!on || type == 7) {
-        TEXT(c, F_LBL, 0, 57, 0, "%s", "PERFORM");
-        TEXT(c, F_LBL, 127, 57, 4, "%s", type == 7 ? "THRU (A)" : "FILTER OFF (A)");   /* TEST37c: THRU is off */
-    } else {
-        w = *(s32 *)(p - 19) >> 16;
-        TEXT(c, F_LBL, 0, 57, 0, "%s", type == 1 ? "LP2" : type == 3 ? "HP2" : "FLT");
-        hz_text(b, hz_log(w));
-        for (q = b; *q; q++)
-            ;
-        q[0] = ' '; q[1] = '('; q[2] = 'A'; q[3] = ')'; q[4] = 0;   /* TEST36: the knob, as the OS's own pages */
-        TEXT(c, F_LBL, 18, 57, 0, "%s", b);     /* TEST36: from the left, beside the type (room for RES's (B)) */
-        q = b;
-        *q++ = 'R'; *q++ = 'E'; *q++ = 'S'; *q++ = ' ';
-        q = num(q, p[MF_RESO]);
-        q[0] = ' '; q[1] = '('; q[2] = 'B'; q[3] = ')'; q[4] = 0;
-        TEXT(c, F_LBL, 127, 57, 4, "%s", b);
-        xc = (hz_log(w) - 283247) * (127 * 16) / 653127;
-    }
-    if (p) {                                    /* TEST38: DRV (C), top centre: KIT = the kit's own FX DRIVE */
-        q = b;
-        *q++ = 'D'; *q++ = 'R'; *q++ = 'V'; *q++ = ' ';
-        if (on && tj_drv)
-            q = num(q, tj_drv);
+    } else {                                    /* TEST38b: the header is the page and the filter's state; the */
+        if (type == 7)                          /* values are in the footer, under their knobs */
+            q = "THRU";                         /* (THRU is the filter off with TYPE 7 since TEST37c) */
+        else if (!on)
+            q = "OFF";
         else {
-            *q++ = 'K'; *q++ = 'I'; *q++ = 'T';
+            w = *(s32 *)(p - 19) >> 16;
+            q = type == 1 ? "LP2" : type == 3 ? "HP2" : "FLT";
+            xc = (hz_log(w) - 283247) * (127 * 16) / 653127;
+            hz_text(b, hz_log(w));
         }
-        q[0] = ' '; q[1] = '('; q[2] = 'C'; q[3] = ')'; q[4] = 0;
-        TEXT(c, F_SML, 64, 0, 2, "%s", b);
+        TEXT(c, F_LBL, 0, 57, 0, "%s", "PERFORM");
+        TEXT(c, F_LBL, 127, 57, 4, "%s", q);
+        pcol(0, on && type != 7 ? b : q, "FREQ");
+        num(r, p[MF_RESO]);
+        pcol(1, r, "RES");
+        num(r, tj_drv);
+        pcol(2, on && tj_drv ? r : "KIT", "DRV");
+        FILL(c, 0, GY0 - 1, 127, GY0 - 1, 1);   /* the graph's floor */
     }
     for (y = GY0; y <= GY1; y += 3) {          /* 100 Hz, 1 kHz, 10 kHz: dotted */
         px(30, y);
@@ -1760,9 +1749,6 @@ void tj_perform(void *c, s32 dev)
         }
     } else if (on)                              /* THRU: flat */
         FILL(c, 0, Y0DB, 127, Y0DB + 1, 1);
-    TEXT(c, F_SML, 0, 0, 0, "%s", "LP");
-    TEXT(c, F_SML, 127, 0, 4, "%s", "HP");
-    fbar(14, 113, 3, on ? tj_fpos : 0);
 }
 
 /* ---- SETTINGS > PERSONALIZE: "JOG DISPLAY  VINYL / CDJ" ---- */

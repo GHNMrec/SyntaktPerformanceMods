@@ -379,6 +379,6 @@ def test_screens(rig):
                                  w32(uc, s["tj_gl_cur"], 136 * 120 << 8), w32(uc, s["tj_gl_from"], 130 * 120 << 8)))
     assert "TO 140.00" in t and "GLIDE" in t
     t = shot(rig, lambda uc, s: (w8(uc, s["tj_page"], 1), w32(uc, s["tj_mfp"], 0)))
-    assert t == ["NO MASTER FILTER", "LP", "HP"]              # TEST35: PERFORM is the whole screen
+    assert t == ["NO MASTER FILTER"]                          # TEST35: PERFORM is the whole screen (TEST38b: no slider)
     t = shot(rig, lambda uc, s: (w8(uc, s["tj_func"], 1)))
     assert {"LOAD", "PHR", "GLD", "T2 140", "NO RST", "YES P1", "16", "4B"} <= set(t)

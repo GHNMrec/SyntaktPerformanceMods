@@ -422,9 +422,9 @@ def test_perform_header_shows_the_cutoff_in_hz(rig, w):
     uc.mem_write(can, struct.pack(">5I", 0, 128, 64, 2, can + 0x100))
     g.call(sym["tj_draw"], [VIEW, can])
     uc.hook_del(h)
-    assert texts[0] == "LP2" and texts[2] == "RES 30 (B)" and texts[3:] == ["DRV KIT (C)", "LP", "HP"]   # TEST36: the knobs, TEST38: DRV (C)
-    assert texts[1].endswith(" (A)")
-    t, want = texts[1][:-4], 5.9 * 2 ** (0.0926 * w / 256)
+    assert texts[:2] == ["PERFORM", "LP2"]                       # TEST38b: the header: the page, the filter's state
+    assert texts[3:] == ["FREQ", "30", "RES", "KIT", "DRV"]         # the footer: each value over its name, A B C
+    t, want = texts[2], 5.9 * 2 ** (0.0926 * w / 256)
     got = float(t[:-2]) if t.endswith("HZ") else float(t[:-1]) * 1000
     tol = 1.5 if want < 1000 else 100 if want < 10000 else 500
     assert abs(got - want) <= tol + want * 0.004, (t, want)
@@ -556,4 +556,5 @@ def test_perform_drive_on_a_side_and_back_to_kit(m):
     drv_word(m, 33)
     m.tap()
     assert drv_word(m) == 33 << 8 and m.u8("tj_dact") == 0
+
 

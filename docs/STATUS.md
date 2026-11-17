@@ -12,7 +12,10 @@
   after leaving the page and costs nothing at THRU, knob A ignores turns while pushed and for 0.25 s after a push
   or release, A turns finer with a notch at the centre, and the spectrum is read only in the 64 blocks before each
   redraw. The builds felt "much better" in his tests; heavy sets (Sidtakt + arp + the filter) are not proven.
-* **Not yet on a unit:** TEST38 = TEST37c + PERFORM's C = DRV (0 = KIT, the kit's own FX DRIVE; 1-127 replaces it in
+* **Not yet on a unit:** TEST38b = TEST38 with PERFORM's screen redone as the OS's own pages (header: PERFORM and
+  the filter's state; footer: FREQ, RES, DRV under knobs A, B, C; no LP-HP slider). TEST38's DRV text sat on the
+  slider on the author's unit.
+* **TEST38:** TEST37c + PERFORM's C = DRV (0 = KIT, the kit's own FX DRIVE; 1-127 replaces it in
   the audio interrupt's copy of the live values with a glide; a push of C = KIT; with A at THRU, DRV up runs the mix
   through the FX block with the filter off). Checked in the emulator, in the real audio interrupt of a built file:
   the DRIVE value the OS reads follows DRV and glides, and the kit's own word is never touched while the filter is off.

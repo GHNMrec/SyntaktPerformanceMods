@@ -81,8 +81,8 @@ a platter running down. Again this is on the live copy: your AMP VOL is untouche
 ## PERFORM page
 
 **[RIGHT]** on the JOG page opens PERFORM, which takes the whole screen; **[LEFT]** goes back. PERFORM has its own
-knobs, shown on the screen as on the OS's own pages: the cutoff with **(A)**, RESO with **(B)** and DRV with **(C)**
-(top centre). No other knob does anything on PERFORM, so nothing there changes the JOG page.
+knobs, laid out as the OS's own parameter pages: the footer shows FREQ, RES and DRV, each value over its name in
+the column of its knob (A, B, C). No other knob does anything on PERFORM, so nothing there changes the JOG page.
 
 * **A = the DJ filter.** Left of centre is LP2, closing as you turn; right of centre is HP2, opening; the centre
   is THRU.
@@ -114,7 +114,8 @@ knobs, shown on the screen as on the OS's own pages: the cutoff with **(A)**, RE
 
 ### The screen
 
-* **Top line:** the type, the cutoff in Hz and RES.
+* **Top line:** PERFORM, and the filter's state on the right: LP2, HP2, THRU or OFF.
+* **Footer:** FREQ (the cutoff in Hz, or THRU / OFF), RES and DRV (KIT or 1-127), under knobs A, B and C.
 * **The graph:** 20 Hz to 20 kHz, with dotted lines at 100 Hz, 1 kHz and 10 kHz and at 0 dB.
   * **The solid line is the filter's curve.** It is drawn from the 2-pole shape at the cutoff and RESO: an
     illustration, not a measurement of the analog circuit. The Hz scale comes from cutoffs measured on one
@@ -122,7 +123,6 @@ knobs, shown on the screen as on the OS's own pages: the cutoff with **(A)**, RE
   * **The bars are the mix's real spectrum after the filter:** the OS's digital copy of the main mix (the one sent
     to Overbridge), so you see the bass drop away as you close the low-pass. They rise at once and fall about
     20 dB a second. The scale is fixed and tilted +3 dB an octave around 1 kHz, the way analyzers show a mix.
-* **Bottom:** the knob position (LP / centre / HP).
 
 The spectrum only runs while PERFORM is on screen; no other page pays for it.
 
