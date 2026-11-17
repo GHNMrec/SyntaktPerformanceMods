@@ -9,7 +9,8 @@ Performance mods for the Elektron Syntakt (OS 1.41 and 1.42).
   * a phrase counter;
   * tempo memories with an exact glide.
 * **PERFORM page** (**[RIGHT]** from JOG): a DJ filter on the analog FX block over the whole mix. It sweeps smoothly
-  like an analog knob, and the screen draws the filter's curve over the mix's live spectrum.
+  like an analog knob (THRU is a true bypass), with RESO on B and a DRV knob on C, and the screen draws the filter's
+  curve over the mix's live spectrum.
 
 Everything is in [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
 

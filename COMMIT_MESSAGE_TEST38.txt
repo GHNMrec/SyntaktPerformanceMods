@@ -1,0 +1,5 @@
+TEST38: PERFORM gets a DRV knob (C); page and docs updated
+
+- PERFORM's C = DRV: KIT leaves the kit's own FX DRIVE alone; 1-127 replaces it (glide); a push = KIT. With A at THRU, DRV up runs the mix through the FX block with the filter off.
+- Includes TEST37c (THRU = full bypass, knob guard, notch, lighter spectrum).
+- Page version TEST38, known builds, user guide and START HERE updated; release zip 1.5-test38.

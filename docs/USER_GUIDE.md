@@ -81,18 +81,29 @@ a platter running down. Again this is on the live copy: your AMP VOL is untouche
 ## PERFORM page
 
 **[RIGHT]** on the JOG page opens PERFORM, which takes the whole screen; **[LEFT]** goes back. PERFORM has its own
-knobs, shown in the header as on the OS's own pages: the cutoff with **(A)**, RESO with **(B)**. No other knob does
-anything on PERFORM, so nothing there changes the JOG page.
+knobs, shown on the screen as on the OS's own pages: the cutoff with **(A)**, RESO with **(B)** and DRV with **(C)**
+(top centre). No other knob does anything on PERFORM, so nothing there changes the JOG page.
 
 * **A = the DJ filter.** Left of centre is LP2, closing as you turn; right of centre is HP2, opening; the centre
   is THRU.
-  * A turn that crosses the centre stops at THRU; the next detent goes on to the other side.
+  * Coming back to the centre from a side, the knob stops at THRU and needs 6 more detents to cross to the other
+    side (a notch). The first turn out of the centre, and turning back the way you came, is free.
   * Each side ends with a hard stop: turning on past the end does nothing.
-  * A slow turn takes about 96 detents from the centre to the end of one side. A fast turn moves twice as far per
+  * A slow turn takes about 126 detents from the centre to the end of one side. A fast turn moves twice as far per
     detent; one move of the knob counts 4 detents at most, however fast it is spun.
+  * **THRU is a true bypass:** the filter is off and the mix keeps its own routing, so it sounds exactly as it did
+    before you touched the filter and costs no CPU. (Before TEST37c, THRU left the whole mix running through the
+    analog FX block, which sounded harder and crackly.)
+  * While A is pushed, and for a quarter of a second after a push or release, turns of A are ignored, so tapping it
+    for THRU or off does not slip the filter.
 * **B = RESO**, a step a detent. Above about 90 it climbs past the stock maximum into self-oscillation (Polivoks
   style). Keep the volume down the first time.
-* **Push A:** snaps to THRU. **[FUNC] + push A:** filter off.
+* **C = DRV**, the analog FX block's DRIVE. **KIT** (the start) leaves your kit's own DRIVE alone, p-locks and LFOs
+  included. 1 to 127 replaces it, with a glide, while the filter is on; a step a detent (two when you turn fast).
+  With A at THRU, turning DRV up runs the mix through the FX block with the filter off, so you can drive the master
+  without filtering it; DRV back to KIT is the bypass again. **Push C:** DRV back to KIT.
+* **Push A:** snaps to THRU. **[FUNC] + push A:** filter off, and DRV back to KIT. Leaving the page keeps the
+  filter and DRV where they are; at THRU with DRV at KIT nothing runs at all.
 
 ### Why it sweeps like an analog knob
 
@@ -148,6 +159,7 @@ longer fits its chunks with TEST35's additions. Bringing it back means making ro
 5. Spin A both ways: tempo and pitch bend together; [YES]: tempo only.
 6. [FUNC] + [TRIG 2] from 130: a 4-bar glide landing on 140.00.
 7. [RIGHT]: PERFORM. Turn A slowly both ways: no steps, a stop at THRU, a hard stop at each end. Turn B (RESO).
-   Push A; [FUNC] + push A. Turn C–H: nothing happens, and back on JOG ([LEFT]) nothing has changed.
+   Turn C (DRV): KIT at first; up from THRU it drives with no filter. Push A; [FUNC] + push A; push C. Turn D–H: nothing
+   happens, and back on JOG ([LEFT]) nothing has changed.
 8. Play while on PERFORM: the bars move, and closing the low-pass drops the highs. Does the screen keep up? Are the
    other pages as smooth as before?

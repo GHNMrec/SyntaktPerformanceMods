@@ -43,7 +43,7 @@ PF_BASE, PF_END = RAM + 0x1D100, RAM + 0x1E000     # TEST34: the drawing (grid's
 PF2_BASE, PF2_END = RAM + 0x1B480, RAM + 0x1C000   # TEST34: the pitch, the glide, the keys (sid ends +0x1B458; its reservation too)
 TOOLS = os.environ.get("M68K_ROOT", "~/tools/m68k/root")   # "/" = the distro cross-toolchain (apt: gcc-13-m68k-linux-gnu binutils-m68k-linux-gnu)
 CFLAGS = "-mcpu=54418 -Os -ffreestanding -fno-builtin -nostdlib -fno-pic -fno-common -Wall -Wextra"
-EXPORT = ("tj_ag", "tj_tick", "tj_rate_isr", "tj_enc", "tj_key", "tj_draw_v", "tj_dtor0", "tj_dtor1", "tj_pers_v", "tj_rate_c",
+EXPORT = ("tj_ag", "tj_drv", "tj_dq", "tj_dact", "tj_tick", "tj_rate_isr", "tj_enc", "tj_key", "tj_draw_v", "tj_dtor0", "tj_dtor1", "tj_pers_v", "tj_rate_c",
           "tj_enc_c", "tj_key_c", "tj_draw", "tj_gone", "tj_pers", "tj_inv_name", "tj_inv_tog", "tj_inv_delta",
           "tj_inv_draw", "tj_bend", "tj_debt", "tj_sp", "tj_bstep", "tj_sstep", "tj_rate", "tj_pos", "tj_strobe",
           "tj_lease", "tj_popt", "tj_touch", "tj_mode", "tj_load", "tj_brake", "tj_start", "tj_range",

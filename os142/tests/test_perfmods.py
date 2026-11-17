@@ -49,7 +49,7 @@ class M(J.M):
         return struct.unpack(">b", self.uc.mem_read(self.sym[n], 1))[0]
 
     def tap(self):
-        self.call(self.sym["tj_tap"])
+        self.call(self.sym["tj_tap"], [COPY])                  # TEST38: the copy of the live values is its argument
 
     def count(self, fn):
         n = [0]
@@ -422,7 +422,7 @@ def test_perform_header_shows_the_cutoff_in_hz(rig, w):
     uc.mem_write(can, struct.pack(">5I", 0, 128, 64, 2, can + 0x100))
     g.call(sym["tj_draw"], [VIEW, can])
     uc.hook_del(h)
-    assert texts[0] == "LP2" and texts[2] == "RES 30 (B)" and texts[3:] == ["LP", "HP"]   # TEST36: the knobs
+    assert texts[0] == "LP2" and texts[2] == "RES 30 (B)" and texts[3:] == ["DRV KIT (C)", "LP", "HP"]   # TEST36: the knobs, TEST38: DRV (C)
     assert texts[1].endswith(" (A)")
     t, want = texts[1][:-4], 5.9 * 2 ** (0.0926 * w / 256)
     got = float(t[:-2]) if t.endswith("HZ") else float(t[:-1]) * 1000
@@ -476,3 +476,84 @@ def test_perform_thru_is_bypass_and_push_guard(m):
     assert m.s32("tj_fp") == 0
     m.knob(1, -1)                                              # a real turn: LP2 again
     assert m.s32("tj_fp") == -32 and fl(m)[0][4] == 1
+
+
+def drv_word(m, v=None):
+    """the copy's FX DRIVE word (byte 1856): read, or set to the kit's value v (0..127, high byte)"""
+    if v is not None:
+        m.uc.mem_write(COPY + 1856, struct.pack(">H", v << 8))
+    return struct.unpack(">H", m.uc.mem_read(COPY + 1856, 2))[0]
+
+
+def test_perform_drive(m):
+    """TEST38: C = DRV on PERFORM: 0 = the kit's own DRIVE, 1..127 replaces it in the copy of the live values while
+    the filter is on (glide), a push = KIT again; at THRU DRV up puts the FX block in the path with the filter OFF"""
+    perf(m, on=0)
+    drv_word(m, 40)
+    for _ in range(60):
+        m.tap()
+    assert drv_word(m) == 40 << 8                              # filter off: the kit's own word, untouched
+    m.knob(3, 2)                                               # at THRU: DRV 2 -> the FX block in, the filter OFF
+    assert m.u8("tj_drv") == 2
+    assert fl(m)[0][0] == 7 and fl(m)[0][4] == 1
+    drv_word(m, 40)
+    m.tap()
+    w = drv_word(m)
+    assert 40 << 8 > w > 2 << 8                                # gliding down from the kit's value, not a jump
+    for _ in range(800):
+        drv_word(m, 40)
+        m.tap()
+    assert drv_word(m) == 2 << 8                               # there
+    m.knob(3, -9)                                              # back to 0 = KIT: at THRU the filter goes OFF (bypass)
+    assert m.u8("tj_drv") == 0 and fl(m)[0][4] == 0
+    m.knob(3, 2)
+    m.knob(3, 2)
+    m.knob(3, 1)
+    assert m.u8("tj_drv") == 5
+    m.knob(3, 20)                                              # fast: 2 a detent (4 detents an event at most)
+    assert m.u8("tj_drv") == 5 + 4 * 2
+    m.key(42, 1)                                               # C pushed: KIT
+    assert m.u8("tj_drv") == 0 and fl(m)[0][4] == 0
+    m.knob(3, 1)                                               # a slip right after the push: nothing
+    m.knob(3, 1, held=1)
+    assert m.u8("tj_drv") == 0
+    for _ in range(AG):
+        m.rate()
+    m.knob(3, 2)
+    assert m.u8("tj_drv") == 2
+
+
+def test_perform_drive_on_a_side_and_back_to_kit(m):
+    """TEST38: on a side the filter stays on whatever DRV is; DRV back to KIT glides to the kit's word and stops
+    writing; [FUNC] + A (filter off) is DRV KIT too and gives the kit's word back at once"""
+    perf(m, on=0)
+    m.knob(1, -2)                                              # LP2
+    m.knob(3, 100)
+    assert m.u8("tj_drv") == 8 and fl(m)[0][4] == 1
+    m.knob(3, 4)
+    m.knob(3, 4)
+    for _ in range(800):
+        drv_word(m, 10)
+        m.tap()
+    assert drv_word(m) == m.u8("tj_drv") << 8
+    m.key(42, 1)                                               # KIT: glide back to the kit's 10
+    assert fl(m)[0][4] == 1 and m.u8("tj_drv") == 0
+    drv_word(m, 10)
+    m.tap()
+    assert drv_word(m) > 10 << 8
+    for _ in range(800):
+        drv_word(m, 10)
+        m.tap()
+    assert drv_word(m) == 10 << 8 and m.u8("tj_dact") == 0     # stopped writing
+    m.knob(3, 1)
+    m.uc.mem_write(m.sym["tj_ag"], bytes(2))
+    m.knob(3, 1)
+    assert m.u8("tj_drv") in (1, 2)
+    m.key(1, 1)
+    m.key(40, 1)                                               # [FUNC] + A: the filter off, DRV KIT
+    m.key(1, 0)
+    assert fl(m)[0][4] == 0 and m.u8("tj_drv") == 0
+    drv_word(m, 33)
+    m.tap()
+    assert drv_word(m) == 33 << 8 and m.u8("tj_dact") == 0
+

@@ -153,6 +153,9 @@ s8 tj_fhold DATA = 0;                           /* TEST37: THRU reached coming b
 u8 tj_fpush DATA = 0;                           /* TEST37: detents pushed on past THRU towards the other side */
 u16 tj_ag DATA = 0;                             /* TEST37c: blocks knob A's turns are still ignored after a push */
 #define AG_BLOCKS 375                           /* 0.25 s */
+u8 tj_drv DATA = 0;                             /* TEST38: PERFORM's DRV (C): 0 = the kit's own, 1..127 = replaces the FX DRIVE */
+u8 tj_dact DATA = 0;                            /* TEST38: DRV is writing the copy's DRIVE word (gliding or held) */
+s32 tj_dq DATA = 0;                             /* TEST38: the DRIVE word now, << 8 */
 s32 tj_fq DATA = 0, tj_fqt DATA = 0;            /* the cutoff word (FREQ << 8 | FINE) now and its target */
 volatile u8 tj_fown DATA = 0;                   /* PERFORM owns the cutoff: its side (1 LP2, 3 HP2), else 0 */
 u8 tj_fb DATA = 0;                              /* the FREQ byte PERFORM wrote last */
@@ -619,6 +622,7 @@ static s32 det(s32 n, s32 d, s32 k)
     return q;
 }
 void tj_perf_knob(s32 n, s32 d);
+void tj_drv_blk(u8 *c, u8 *p);
 
 s32 tj_enc_c(void *view, const u8 *ev)
 {
@@ -630,9 +634,9 @@ s32 tj_enc_c(void *view, const u8 *ev)
         return 0;
     }
     if (tj_page) {                              /* TEST36: PERFORM owns its knobs: A the DJ filter, B its RESO; */
-        if (n != 1 && n != 2)                   /* the others (and [FUNC] + G / H) leave JOG alone here */
+        if (n > 3)                              /* the others (and [FUNC] + G / H) leave JOG alone here */
             return 1;
-        if (n == 1 && (held || tj_ag))         /* TEST37c: A pushed (or just let go): a turn is a slip, not a move */
+        if (n != 2 && (held || tj_ag))         /* TEST37c: A (TEST38: and C) pushed or just let go: a slip, not a move */
             return 1;
         tj_perf_knob(n, d);
         tj_lease = 3000;
@@ -742,6 +746,11 @@ s32 tj_key_c(void *view, const u8 *ev)
         tj_touch = (f & 1) && tj_mode;
         tj_lease = 3000;
         REDRAW(view);
+        return 1;
+    }
+    if (code == 42 && tj_page) {                /* TEST38: PERFORM: C pushed = DRV back to the kit's own */
+        tj_ag = AG_BLOCKS;
+        tj_keys(view, code, (f & 1) && !(f & 8));
         return 1;
     }
     if (code == 1) {                            /* [FUNC]: the settings while held (and stock's PREP on release) */
@@ -1257,7 +1266,7 @@ PF2 static void flt(void)
     tj_fown = 0;                                /* (the interrupt waits while this changes it) */
     if (side == 7) {                            /* TEST37c: THRU = bypassed: the filter off, the mix back on its */
         p[MF_TYPE] = 7;                         /* own routing (not through the analog FX block), no CPU */
-        p[MF_ON] = 0;
+        p[MF_ON] = tj_drv != 0;                 /* TEST38: unless DRV is up: the mix through the FX block, filter off */
         return;
     }
     tj_fqt = side == 1 ? 0x7F00 + f * (119 * 256) / FSIDE : f * (110 * 256) / FSIDE;
@@ -1281,8 +1290,10 @@ PF2 void tj_perf_enter(void)                     /* B starts where the master fi
     tj_fown = 0;
     tj_fhold = 0;                               /* TEST37: a fresh start turns freely */
     tj_fpush = 0;
-    if (!p || !p[MF_ON])
+    if (!p || !p[MF_ON]) {
+        tj_drv = 0;                             /* TEST38: the filter is off (or was taken back): DRV is the kit's */
         return;
+    }
     w = *(s32 *)(p - 19) >> 16;                 /* where the filter is now (its smoothed FREQ) */
     tj_fq = w;
     if (p[MF_TYPE] == 1)
@@ -1313,16 +1324,52 @@ void tj_perf_knob(s32 n, s32 d)                  /* TEST37: main chunk (tools is
         tj_fpush = 0;
         tj_fp = clamp(tj_fp + e, -FSIDE, FSIDE);
         flt();
+    } else if (n == 3) {                        /* TEST38: C: DRV, 0 = KIT, a step a detent (2 when fast); a push: KIT */
+        s32 k = clamp(d, -4, 4);
+        tj_drv = (u8)(d ? clamp(tj_drv + k * (d > 2 || d < -2 ? 2 : 1), 0, 127) : 0);
+        if (!tj_fp)                             /* at THRU: DRV up = the mix through the FX block (filter off), 0 = */
+            flt();                              /* bypass; on a side the filter stays on and tj_tap glides DRV */
     } else                                      /* B: RESO, a step a detent (the filter glides it) */
         p[MF_RESO] = (u8)clamp(p[MF_RESO] + clamp(d, -2, 2), 0, 127);
 }
 
+/* TEST38, the audio interrupt (from tj_tap): PERFORM's DRV writes the FX DRIVE word of the copy of the live values
+ * (high byte = 0..127, what the OS indexes its drive tables with) while the filter is on: one-pole glide, 1/32 a
+ * block, from the kit's own word at the start and back to it with KIT. The copy is rebuilt every block, so the kit's
+ * own drive (p-locks, LFOs) is never written and comes back at once when the filter goes off. */
+PF void tj_drv_blk(u8 *c, u8 *p)
+{
+    u16 *w = (u16 *)(c + 1856);
+    s32 t, d;
+    if (!p[MF_ON]) {
+        tj_dact = 0;
+        return;
+    }
+    t = (tj_drv ? (s32)tj_drv << 8 : (s32)*w) << 8;
+    if (!tj_dact) {
+        tj_dq = (s32)*w << 8;
+        tj_dact = 1;
+    }
+    d = t - tj_dq;
+    if (d < 4096 && d > -4096) {
+        tj_dq = t;
+        if (!tj_drv) {
+            tj_dact = 0;
+            return;
+        }
+    } else
+        tj_dq += d >> 5;
+    *w = (u16)((tj_dq + 128) >> 8);
+}
+
 /* TEST35, the audio interrupt (from tj_copy, before the filter's own hook in the same block): the cutoff glides
  * to PERFORM's target, then PERFORM's spectrum tap (only while PERFORM is on screen) */
-PF2 void tj_tap(void)
+PF2 void tj_tap(u8 *c)
 {
     u8 *p = tj_mfp;
     spec_t *s = tj_spec;
+    if (p && (tj_drv || tj_dact))
+        tj_drv_blk(c, p);                       /* TEST38: PERFORM's DRV (C) */
     if (tj_fown && p) {
         if (!p[MF_ON] || p[MF_TYPE] != tj_fown || p[MF_FREQ] != tj_fb)
             tj_fown = 0;                        /* switched off, or changed from elsewhere: theirs again */
@@ -1394,11 +1441,15 @@ PF2 s32 tj_keys(void *view, u32 code, s32 down)
             tj_fown = 0;
             tj_fhold = 0;                       /* TEST37: after the snap, the first twist is free */
             tj_fpush = 0;
-            if (tj_func)
+            if (tj_func) {
                 tj_mfp[MF_ON] = 0;
-            else if (tj_mfp[MF_ON])
+                tj_drv = 0;                     /* TEST38: off is off: DRV too */
+            } else if (tj_mfp[MF_ON])
                 flt();
         }
+    } else if (code == 42 && tj_page) {         /* TEST38: C pushed: DRV = KIT */
+        if (down && tj_mfp)
+            tj_perf_knob(3, 0);
     } else
         return 0;
     tj_lease = 3000;
@@ -1660,6 +1711,17 @@ void tj_perform(void *c, s32 dev)
         q[0] = ' '; q[1] = '('; q[2] = 'B'; q[3] = ')'; q[4] = 0;
         TEXT(c, F_LBL, 127, 57, 4, "%s", b);
         xc = (hz_log(w) - 283247) * (127 * 16) / 653127;
+    }
+    if (p) {                                    /* TEST38: DRV (C), top centre: KIT = the kit's own FX DRIVE */
+        q = b;
+        *q++ = 'D'; *q++ = 'R'; *q++ = 'V'; *q++ = ' ';
+        if (on && tj_drv)
+            q = num(q, tj_drv);
+        else {
+            *q++ = 'K'; *q++ = 'I'; *q++ = 'T';
+        }
+        q[0] = ' '; q[1] = '('; q[2] = 'C'; q[3] = ')'; q[4] = 0;
+        TEXT(c, F_SML, 64, 0, 2, "%s", b);
     }
     for (y = GY0; y <= GY1; y += 3) {          /* 100 Hz, 1 kHz, 10 kHz: dotted */
         px(30, y);

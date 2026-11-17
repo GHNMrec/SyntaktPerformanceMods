@@ -73,7 +73,7 @@ AFTER FLASHING: FIRST CHECKS
 2. Knobs B to F: LOAD, START, BRAKE, RANGE, PHASE, a step every 2-3 detents. G and H do nothing.
 3. SETTINGS > PERSONALIZE > JOG DISPLAY: VINYL or CDJ.
 4. [RIGHT]: PERFORM. Turn B slowly both ways: a smooth sweep that stops at THRU in the middle.
-   Keep the volume down the first time you turn C (RESO) high: it self-oscillates.
+   Turn B (RESO) high only with the volume down: it self-oscillates. C is DRV (KIT = your kit's own drive).
 5. Anything odd: note what you did and what you saw (a photo of the screen helps).
 
 What has been checked, and what has not: docs\STATUS.md
