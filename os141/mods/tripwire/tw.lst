@@ -1,0 +1,327 @@
+
+tw.elf:     file format elf32-m68k
+
+
+Disassembly of section .text:
+
+444f43d0 <tw_mk>:
+444f43d0:	2f0f           	movel %sp,%sp@-
+444f43d2:	4eb9 444f 45bc 	jsr 444f45bc <tw_create>
+444f43d8:	588f           	addql #4,%sp
+444f43da:	202f 000c      	movel %sp@(12),%d0
+444f43de:	72fc           	moveq #-4,%d1
+444f43e0:	4ef9 4000 1646 	jmp 40001646 <tw_mk-0x44f2d8a>
+
+444f43e6 <tw_blk_hook>:
+444f43e6:	c1b9 fc04 c010 	andl %d0,fc04c010 <__bss_start+0xb7b5779c>
+444f43ec:	2f0e           	movel %fp,%sp@-
+444f43ee:	4eb9 444f 465e 	jsr 444f465e <tw_isr>
+444f43f4:	588f           	addql #4,%sp
+444f43f6:	4e75           	rts
+
+444f43f8 <tw_end_hook>:
+444f43f8:	2f0e           	movel %fp,%sp@-
+444f43fa:	4eb9 444f 473e 	jsr 444f473e <tw_exit>
+444f4400:	588f           	addql #4,%sp
+444f4402:	4cee 3fff ff5c 	moveml %fp@(-164),%d0-%a5
+444f4408:	4e75           	rts
+
+444f440a <fire>:
+444f440a:	4fef ffdc      	lea %sp@(-36),%sp
+444f440e:	226f 0030      	moveal %sp@(48),%a1
+444f4412:	48d7 7c3c      	moveml %d2-%d5/%a2-%fp,%sp@
+444f4416:	202f 002c      	movel %sp@(44),%d0
+444f441a:	45e9 000c      	lea %a1@(12),%a2
+444f441e:	46fc 2700      	movew #9984,%sr
+444f4422:	2839 444f 47b0 	movel 444f47b0 <tw_n>,%d4
+444f4428:	4283           	clrl %d3
+444f442a:	7410           	moveq #16,%d2
+444f442c:	4281           	clrl %d1
+444f442e:	49f9 444f 4834 	lea 444f4834 <tw_base>,%a4
+444f4434:	4bf9 444f 47f4 	lea 444f47f4 <tw_end>,%a5
+444f443a:	b284           	cmpl %d4,%d1
+444f443c:	6600 00de      	bnew 444f451c <fire+0x112>
+444f4440:	47f9 444f 4834 	lea 444f4834 <tw_base>,%a3
+444f4446:	7810           	moveq #16,%d4
+444f4448:	49f9 444f 47f4 	lea 444f47f4 <tw_end>,%a4
+444f444e:	b882           	cmpl %d2,%d4
+444f4450:	660c           	bnes 444f445e <fire+0x54>
+444f4452:	2c4c           	moveal %a4,%fp
+444f4454:	2a4b           	moveal %a3,%a5
+444f4456:	91c8           	subal %a0,%a0
+444f4458:	b1c1           	cmpal %d1,%a0
+444f445a:	6600 00f8      	bnew 444f4554 <fire+0x14a>
+444f445e:	720f           	moveq #15,%d1
+444f4460:	b282           	cmpl %d2,%d1
+444f4462:	6500 0106      	bcsw 444f456a <fire+0x160>
+444f4466:	2073 2c00      	moveal %a3@(0,%d2:l:4),%a0
+444f446a:	41e8 1000      	lea %a0@(4096),%a0
+444f446e:	222f 0028      	movel %sp@(40),%d1
+444f4472:	740c           	moveq #12,%d2
+444f4474:	4bf3 0c00      	lea %a3@(0,%d0:l:4),%a5
+444f4478:	216f 0034 0004 	movel %sp@(52),%a0@(4)
+444f447e:	e5a9           	lsll %d2,%d1
+444f4480:	2400           	movel %d0,%d2
+444f4482:	2809           	movel %a1,%d4
+444f4484:	7582           	mvzb %d2,%d2
+444f4486:	0684 0000 00ac 	addil #172,%d4
+444f448c:	8282           	orl %d2,%d1
+444f448e:	4282           	clrl %d2
+444f4490:	0081 57ac 0000 	oril #1470889984,%d1
+444f4496:	2081           	movel %d1,%a0@
+444f4498:	2155 0008      	movel %a5@,%a0@(8)
+444f449c:	2234 0c00      	movel %a4@(0,%d0:l:4),%d1
+444f44a0:	92b3 0c00      	subl %a3@(0,%d0:l:4),%d1
+444f44a4:	47f9 444f 47b4 	lea 444f47b4 <tw_entry>,%a3
+444f44aa:	47f3 0c00      	lea %a3@(0,%d0:l:4),%a3
+444f44ae:	2141 000c      	movel %d1,%a0@(12)
+444f44b2:	2153 0010      	movel %a3@,%a0@(16)
+444f44b6:	216f 0038 0014 	movel %sp@(56),%a0@(20)
+444f44bc:	2169 0008 0018 	movel %a1@(8),%a0@(24)
+444f44c2:	2169 0004 001c 	movel %a1@(4),%a0@(28)
+444f44c8:	42a8 0024      	clrl %a0@(36)
+444f44cc:	42a8 0020      	clrl %a0@(32)
+444f44d0:	260a           	movel %a2,%d3
+444f44d2:	5883           	addql #4,%d3
+444f44d4:	b6b4 0c00      	cmpl %a4@(0,%d0:l:4),%d3
+444f44d8:	6300 009c      	blsw 444f4576 <fire+0x16c>
+444f44dc:	2039 444f 47a0 	movel 444f47a0 <tw_least>,%d0
+444f44e2:	2239 444f 47b0 	movel 444f47b0 <tw_n>,%d1
+444f44e8:	4840           	swap %d0
+444f44ea:	4240           	clrw %d0
+444f44ec:	7381           	mvzb %d1,%d1
+444f44ee:	8280           	orl %d0,%d1
+444f44f0:	2039 444f 479c 	movel 444f479c <tw_lix>,%d0
+444f44f6:	e188           	lsll #8,%d0
+444f44f8:	71c0           	mvzw %d0,%d0
+444f44fa:	8280           	orl %d0,%d1
+444f44fc:	2039 444f 47a8 	movel 444f47a8 <tw_blk>,%d0
+444f4502:	e188           	lsll #8,%d0
+444f4504:	2141 0028      	movel %d1,%a0@(40)
+444f4508:	2239 444f 47a4 	movel 444f47a4 <tw_skip>,%d1
+444f450e:	7381           	mvzb %d1,%d1
+444f4510:	8081           	orl %d1,%d0
+444f4512:	2140 002c      	movel %d0,%a0@(44)
+444f4516:	2e48           	moveal %a0,%sp
+444f4518:	4afc           	illegal
+444f451a:	60fe           	bras 444f451a <fire+0x110>
+444f451c:	b081           	cmpl %d1,%d0
+444f451e:	672e           	beqs 444f454e <fire+0x144>
+444f4520:	2074 1c00      	moveal %a4@(0,%d1:l:4),%a0
+444f4524:	2675 1c00      	moveal %a5@(0,%d1:l:4),%a3
+444f4528:	97c8           	subal %a0,%a3
+444f452a:	b7fc 0000 13ff 	cmpal #5119,%a3
+444f4530:	631c           	blss 444f454e <fire+0x144>
+444f4532:	b7c3           	cmpal %d3,%a3
+444f4534:	6318           	blss 444f454e <fire+0x144>
+444f4536:	4de8 1000      	lea %a0@(4096),%fp
+444f453a:	2a10           	movel %a0@,%d5
+444f453c:	0c85 5ac0 ffee 	cmpil #1522597870,%d5
+444f4542:	660a           	bnes 444f454e <fire+0x144>
+444f4544:	5888           	addql #4,%a0
+444f4546:	b1ce           	cmpal %fp,%a0
+444f4548:	66f0           	bnes 444f453a <fire+0x130>
+444f454a:	260b           	movel %a3,%d3
+444f454c:	2401           	movel %d1,%d2
+444f454e:	5281           	addql #1,%d1
+444f4550:	6000 fee8      	braw 444f443a <fire+0x30>
+444f4554:	281e           	movel %fp@+,%d4
+444f4556:	989d           	subl %a5@+,%d4
+444f4558:	b088           	cmpl %a0,%d0
+444f455a:	6708           	beqs 444f4564 <fire+0x15a>
+444f455c:	b883           	cmpl %d3,%d4
+444f455e:	6304           	blss 444f4564 <fire+0x15a>
+444f4560:	2604           	movel %d4,%d3
+444f4562:	2408           	movel %a0,%d2
+444f4564:	5288           	addql #1,%a0
+444f4566:	6000 fef0      	braw 444f4458 <fire+0x4e>
+444f456a:	2409           	movel %a1,%d2
+444f456c:	78fc           	moveq #-4,%d4
+444f456e:	c484           	andl %d4,%d2
+444f4570:	2042           	moveal %d2,%a0
+444f4572:	6000 fefa      	braw 444f446e <fire+0x64>
+444f4576:	b5c4           	cmpal %d4,%a2
+444f4578:	6400 ff62      	bccw 444f44dc <fire+0xd2>
+444f457c:	7202           	moveq #2,%d1
+444f457e:	b282           	cmpl %d2,%d1
+444f4580:	6700 ff5a      	beqw 444f44dc <fire+0xd2>
+444f4584:	2212           	movel %a2@,%d1
+444f4586:	0801 0000      	btst #0,%d1
+444f458a:	662a           	bnes 444f45b6 <fire+0x1ac>
+444f458c:	2441           	moveal %d1,%a2
+444f458e:	d5fc bfff fc00 	addal #-1073742848,%a2
+444f4594:	b5fc 0034 7bff 	cmpal #3439615,%a2
+444f459a:	630e           	blss 444f45aa <fire+0x1a0>
+444f459c:	d5fc fbb1 cb40 	addal #-72234176,%a2
+444f45a2:	b5fc 0002 0000 	cmpal #131072,%a2
+444f45a8:	640c           	bccs 444f45b6 <fire+0x1ac>
+444f45aa:	b2a9 0008      	cmpl %a1@(8),%d1
+444f45ae:	6706           	beqs 444f45b6 <fire+0x1ac>
+444f45b0:	2181 2c20      	movel %d1,%a0@(20,%d2:l:4)
+444f45b4:	5282           	addql #1,%d2
+444f45b6:	2443           	moveal %d3,%a2
+444f45b8:	6000 ff16      	braw 444f44d0 <fire+0xc6>
+
+444f45bc <tw_create>:
+444f45bc:	4fef ffec      	lea %sp@(-20),%sp
+444f45c0:	70fc           	moveq #-4,%d0
+444f45c2:	206f 0018      	moveal %sp@(24),%a0
+444f45c6:	48d7 0c1c      	moveml %d2-%d4/%a2-%a3,%sp@
+444f45ca:	c0a8 0014      	andl %a0@(20),%d0
+444f45ce:	2228 0010      	movel %a0@(16),%d1
+444f45d2:	2240           	moveal %d0,%a1
+444f45d4:	d3c1           	addal %d1,%a1
+444f45d6:	b1c1           	cmpal %d1,%a0
+444f45d8:	653e           	bcss 444f4618 <tw_create+0x5c>
+444f45da:	b1c9           	cmpal %a1,%a0
+444f45dc:	643a           	bccs 444f4618 <tw_create+0x5c>
+444f45de:	2008           	movel %a0,%d0
+444f45e0:	74fc           	moveq #-4,%d2
+444f45e2:	0680 ffff ffc0 	addil #-64,%d0
+444f45e8:	c082           	andl %d2,%d0
+444f45ea:	2441           	moveal %d1,%a2
+444f45ec:	b08a           	cmpl %a2,%d0
+444f45ee:	622c           	bhis 444f461c <tw_create+0x60>
+444f45f0:	40c3           	movew %sr,%d3
+444f45f2:	46fc 2700      	movew #9984,%sr
+444f45f6:	2439 444f 47b0 	movel 444f47b0 <tw_n>,%d2
+444f45fc:	4280           	clrl %d0
+444f45fe:	45f9 444f 4834 	lea 444f4834 <tw_base>,%a2
+444f4604:	264a           	moveal %a2,%a3
+444f4606:	b082           	cmpl %d2,%d0
+444f4608:	661a           	bnes 444f4624 <tw_create+0x68>
+444f460a:	7810           	moveq #16,%d4
+444f460c:	b880           	cmpl %d0,%d4
+444f460e:	661c           	bnes 444f462c <tw_create+0x70>
+444f4610:	52b9 444f 47a4 	addql #1,444f47a4 <tw_skip>
+444f4616:	603a           	bras 444f4652 <tw_create+0x96>
+444f4618:	2009           	movel %a1,%d0
+444f461a:	60ce           	bras 444f45ea <tw_create+0x2e>
+444f461c:	24fc 5ac0 ffee 	movel #1522597870,%a2@+
+444f4622:	60c8           	bras 444f45ec <tw_create+0x30>
+444f4624:	b29a           	cmpl %a2@+,%d1
+444f4626:	67e2           	beqs 444f460a <tw_create+0x4e>
+444f4628:	5280           	addql #1,%d0
+444f462a:	60da           	bras 444f4606 <tw_create+0x4a>
+444f462c:	45f9 444f 47f4 	lea 444f47f4 <tw_end>,%a2
+444f4632:	5088           	addql #8,%a0
+444f4634:	2589 0c00      	movel %a1,%a2@(0,%d0:l:4)
+444f4638:	2781 0c00      	movel %d1,%a3@(0,%d0:l:4)
+444f463c:	43f9 444f 47b4 	lea 444f47b4 <tw_entry>,%a1
+444f4642:	2390 0c00      	movel %a0@,%a1@(0,%d0:l:4)
+444f4646:	b082           	cmpl %d2,%d0
+444f4648:	6608           	bnes 444f4652 <tw_create+0x96>
+444f464a:	5282           	addql #1,%d2
+444f464c:	23c2 444f 47b0 	movel %d2,444f47b0 <tw_n>
+444f4652:	46c3           	movew %d3,%sr
+444f4654:	4cd7 0c1c      	moveml %sp@,%d2-%d4/%a2-%a3
+444f4658:	4fef 0014      	lea %sp@(20),%sp
+444f465c:	4e75           	rts
+
+444f465e <tw_isr>:
+444f465e:	4fef ffec      	lea %sp@(-20),%sp
+444f4662:	7010           	moveq #16,%d0
+444f4664:	48d7 0c1c      	moveml %d2-%d4/%a2-%a3,%sp@
+444f4668:	2439 444f 47b0 	movel 444f47b0 <tw_n>,%d2
+444f466e:	226f 0018      	moveal %sp@(24),%a1
+444f4672:	52b9 444f 47a8 	addql #1,444f47a8 <tw_blk>
+444f4678:	23c0 444f 4798 	movel %d0,444f4798 <tw_cur>
+444f467e:	4a82           	tstl %d2
+444f4680:	6700 00b2      	beqw 444f4734 <tw_isr+0xd6>
+444f4684:	41f9 444f 4834 	lea 444f4834 <tw_base>,%a0
+444f468a:	4280           	clrl %d0
+444f468c:	2209           	movel %a1,%d1
+444f468e:	2448           	moveal %a0,%a2
+444f4690:	0681 0000 000c 	addil #12,%d1
+444f4696:	47f9 444f 47f4 	lea 444f47f4 <tw_end>,%a3
+444f469c:	2618           	movel %a0@+,%d3
+444f469e:	b283           	cmpl %d3,%d1
+444f46a0:	633c           	blss 444f46de <tw_isr+0x80>
+444f46a2:	b2b3 0c00      	cmpl %a3@(0,%d0:l:4),%d1
+444f46a6:	6236           	bhis 444f46de <tw_isr+0x80>
+444f46a8:	2041           	moveal %d1,%a0
+444f46aa:	91c3           	subal %d3,%a0
+444f46ac:	23c0 444f 4798 	movel %d0,444f4798 <tw_cur>
+444f46b2:	b1f9 444f 47a0 	cmpal 444f47a0 <tw_least>,%a0
+444f46b8:	640c           	bccs 444f46c6 <tw_isr+0x68>
+444f46ba:	23c8 444f 47a0 	movel %a0,444f47a0 <tw_least>
+444f46c0:	23c0 444f 479c 	movel %d0,444f479c <tw_lix>
+444f46c6:	b1fc 0000 034b 	cmpal #843,%a0
+444f46cc:	6216           	bhis 444f46e4 <tw_isr+0x86>
+444f46ce:	2f08           	movel %a0,%sp@-
+444f46d0:	2f01           	movel %d1,%sp@-
+444f46d2:	2f09           	movel %a1,%sp@-
+444f46d4:	2f00           	movel %d0,%sp@-
+444f46d6:	4878 0001      	pea 1 <tw_mk-0x444f43cf>
+444f46da:	4eba fd2e      	jsr %pc@(444f440a <fire>)
+444f46de:	5280           	addql #1,%d0
+444f46e0:	b082           	cmpl %d2,%d0
+444f46e2:	66b8           	bnes 444f469c <tw_isr+0x3e>
+444f46e4:	2239 444f 47ac 	movel 444f47ac <tw_rot>,%d1
+444f46ea:	2001           	movel %d1,%d0
+444f46ec:	5280           	addql #1,%d0
+444f46ee:	b480           	cmpl %d0,%d2
+444f46f0:	6202           	bhis 444f46f4 <tw_isr+0x96>
+444f46f2:	4280           	clrl %d0
+444f46f4:	2072 1c00      	moveal %a2@(0,%d1:l:4),%a0
+444f46f8:	23c0 444f 47ac 	movel %d0,444f47ac <tw_rot>
+444f46fe:	2608           	movel %a0,%d3
+444f4700:	4282           	clrl %d2
+444f4702:	0683 0000 0040 	addil #64,%d3
+444f4708:	4280           	clrl %d0
+444f470a:	2810           	movel %a0@,%d4
+444f470c:	0c84 5ac0 ffee 	cmpil #1522597870,%d4
+444f4712:	6708           	beqs 444f471c <tw_isr+0xbe>
+444f4714:	4a80           	tstl %d0
+444f4716:	6602           	bnes 444f471a <tw_isr+0xbc>
+444f4718:	2408           	movel %a0,%d2
+444f471a:	5280           	addql #1,%d0
+444f471c:	5888           	addql #4,%a0
+444f471e:	b1c3           	cmpal %d3,%a0
+444f4720:	66e8           	bnes 444f470a <tw_isr+0xac>
+444f4722:	4a80           	tstl %d0
+444f4724:	670e           	beqs 444f4734 <tw_isr+0xd6>
+444f4726:	2f00           	movel %d0,%sp@-
+444f4728:	2f02           	movel %d2,%sp@-
+444f472a:	2f09           	movel %a1,%sp@-
+444f472c:	2f01           	movel %d1,%sp@-
+444f472e:	4878 0002      	pea 2 <tw_mk-0x444f43ce>
+444f4732:	60a6           	bras 444f46da <tw_isr+0x7c>
+444f4734:	4cd7 0c1c      	moveml %sp@,%d2-%d4/%a2-%a3
+444f4738:	4fef 0014      	lea %sp@(20),%sp
+444f473c:	4e75           	rts
+
+444f473e <tw_exit>:
+444f473e:	2239 444f 4798 	movel 444f4798 <tw_cur>,%d1
+444f4744:	700f           	moveq #15,%d0
+444f4746:	2f03           	movel %d3,%sp@-
+444f4748:	2f02           	movel %d2,%sp@-
+444f474a:	b081           	cmpl %d1,%d0
+444f474c:	6544           	bcss 444f4792 <tw_exit+0x54>
+444f474e:	41f9 444f 4834 	lea 444f4834 <tw_base>,%a0
+444f4754:	93c9           	subal %a1,%a1
+444f4756:	4280           	clrl %d0
+444f4758:	2070 1c00      	moveal %a0@(0,%d1:l:4),%a0
+444f475c:	2408           	movel %a0,%d2
+444f475e:	0682 0000 0080 	addil #128,%d2
+444f4764:	2610           	movel %a0@,%d3
+444f4766:	0c83 5ac0 ffee 	cmpil #1522597870,%d3
+444f476c:	6708           	beqs 444f4776 <tw_exit+0x38>
+444f476e:	4a80           	tstl %d0
+444f4770:	6602           	bnes 444f4774 <tw_exit+0x36>
+444f4772:	2248           	moveal %a0,%a1
+444f4774:	5280           	addql #1,%d0
+444f4776:	5888           	addql #4,%a0
+444f4778:	b488           	cmpl %a0,%d2
+444f477a:	66e8           	bnes 444f4764 <tw_exit+0x26>
+444f477c:	4a80           	tstl %d0
+444f477e:	6712           	beqs 444f4792 <tw_exit+0x54>
+444f4780:	2f00           	movel %d0,%sp@-
+444f4782:	2f09           	movel %a1,%sp@-
+444f4784:	2f2f 0014      	movel %sp@(20),%sp@-
+444f4788:	2f01           	movel %d1,%sp@-
+444f478a:	4878 0003      	pea 3 <tw_mk-0x444f43cd>
+444f478e:	4eba fc7a      	jsr %pc@(444f440a <fire>)
+444f4792:	241f           	movel %sp@+,%d2
+444f4794:	261f           	movel %sp@+,%d3
+444f4796:	4e75           	rts

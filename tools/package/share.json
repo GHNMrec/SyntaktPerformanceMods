@@ -1,0 +1,10 @@
+{
+ "_what": "What goes in the PUBLIC repo (tools/package/export_public.py). Globs over git-tracked paths. Anything not matched stays private. To share a new mod later: add its folders here, export, push.",
+ "include": [
+  "*"
+ ],
+ "exclude": [
+  "livelink/*",
+  "tools/package/private_words.json"
+ ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "vparams",
+  "os": "1.42",
+  "requires": [
+    "modarea",
+    "midi-guard"
+  ],
+  "description": "Parametri virtuali delle mod: agganci alle funzioni centrali dei parametri di kit e tabella di registrazione in RAM. v2: gli id 246..269 (pagine della macchina MIDI) sono della mod solo sulla traccia FX (midi-guard). v4: e sulla pagina FX3 (REVERB pagina 2) da qualsiasi traccia.",
+  "generated_by": "mods/vparams/make_patch.py",
+  "layout": {
+    "table": "0x444ec8d0",
+    "entries": 32
+  },
+  "symbols": {
+    "vp_kit": "0x444ec838",
+    "vp_get": "0x444ec876",
+    "vp_set": "0x444ec8a2",
+    "vp_find": "0x444ec6d0",
+    "vp_midi": "0x444ec6ea",
+    "vp_ctx": "0x444ec7ac",
+    "vp_sites": "0x444ec74c",
+    "vp_ddr": "0x444ec79c"
+  },
+  "patches": [
+    {
+      "section": 3,
+      "addr": "0X40350E00",
+      "len": 512,
+      "append": true,
+      "hex": "43f9444ec8d0721fb051670a43e9000c53816cf493c922094e750c80000001bd67500c80000001be67480c80000001bb67400c800000019267380c800000019667300c800000019c67280c80000001ba67200c80000001af67180c80000001b0671022000481000000f60c8100000017620472014e7572004e75000040037ed60000000140038034000000014003a3c4000000014003b5220000000140041f0a000000004004241600000000400427b200000000400432740000000040043d5a00000000400f38ee0000000022000281f80000030c81400000004e75202f000441faff9a7209b098670a588853816cf670004e752f082f2f001070004a906702200a2f004eb9444ed430508f205f720cb2af0010673a4a906732200a61ae662c224a2029007c61a4662220402029008090880c80000001006212e48822290090b28064087019b0b01c006704700160027000b0b9444ee3b4670a2f004eb9444ed15e588f70014e756100ff722040202f000867246100fe8a671e6100fe9e67144ab9444ee3b4661022086608720cb2af000c660470014e752f02747c222f00084ef94000d878202f0008671a6100fe5267146100fe6667084ab9444ee3b46606206900044ed02f02222f00084ef94000d950202f0008671a6100fe2667146100fe3a67084ab9444ee3b46606206900084ed02f032f02222f000c4ef94000da3a",
+      "ram": "0x444ec6d0",
+      "what": "(area mod) vp_kit, vp_get, vp_set"
+    },
+    {
+      "section": 3,
+      "addr": "0X4000D870",
+      "len": 8,
+      "expect_sha256": "9543cb23f5dfdfba7a01beb7c6d94be848abc0d9daabf2597886638ffc3b5b29",
+      "hex": "4ef9444ec8384e71",
+      "what": "aggancio: jmp vp_kit ; nop"
+    },
+    {
+      "section": 3,
+      "addr": "0X4000D94A",
+      "len": 6,
+      "expect_sha256": "d6c9f1f60272197a17511f496fc19dd21ddd7df5f1f1ec0cab7a16cad60b0609",
+      "hex": "4ef9444ec876",
+      "what": "aggancio: jmp vp_get"
+    },
+    {
+      "section": 3,
+      "addr": "0X4000DA32",
+      "len": 8,
+      "expect_sha256": "f537d32566bd64115d10ae86f44d24d947ff5cf58a554cf0b67ab60a34ad6e4d",
+      "hex": "4ef9444ec8a24e71",
+      "what": "aggancio: jmp vp_set ; nop"
+    }
+  ]
+}

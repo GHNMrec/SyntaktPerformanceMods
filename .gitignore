@@ -1,0 +1,23 @@
+# Elektron firmware and everything unpacked from it: NEVER committed, NEVER shared
+*.syx
+*.bin
+*.raw
+*.img
+*.elf
+firmware/*
+!firmware/README.md
+unpacked/
+# the container tool and downloaded stock files
+third_party/
+elektron-firmware-tool
+elektron-firmware-tool.exe
+*.zip
+# build output and caches
+out/
+__pycache__/
+*.pyc
+.pytest_cache/
+SyntaktJOG_builder_notes.json
+
+# the install zip is committed on purpose (made by tools/package/make_release_zip.py, checked for firmware)
+!release/*.zip

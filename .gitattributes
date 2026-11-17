@@ -1,0 +1,2 @@
+# keep every file byte for byte as committed (no CRLF conversion on Windows): the .bat files are CRLF, the rest LF
+* -text

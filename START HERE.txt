@@ -1,0 +1,80 @@
+SYNTAKT PERFORMANCE MODS: HOW TO INSTALL
+=======================================
+
+The JOG page (hold [TEMPO]: a CDJ / vinyl jog with LOAD, START, BRAKE, RANGE, PHASE) and the PERFORM page
+([RIGHT] from JOG: a smooth DJ filter over the whole mix, drawn over the mix's live spectrum).
+Full guide: docs\USER_GUIDE.md
+
+EXPERIMENTAL. Back up your projects and samples before you flash anything, and keep the official OS file at hand
+for recovery.
+
+
+THERE IS NO FIRMWARE IN HERE, AND NOBODY SENDS YOU A .SYX
+--------------------------------------------------------
+You build your own file from YOUR copy of the official Syntakt OS:
+
+  * Download Syntakt OS 1.41 or 1.42 (.syx) from elektron.se yourself.
+  * The builder recognises it by its SHA-256 and refuses anything else.
+  * It writes a NEW .syx on your own disk. You flash that file the way you flash any Syntakt OS update
+    (follow Elektron's update instructions).
+  * Don't pass your built file on. Anyone else builds their own the same way.
+
+
+ONE-TIME SETUP (both options)
+-----------------------------
+1. Python 3.10 or newer from python.org (its Windows installer includes Tk, which the windows here need).
+   Tick "Add python.exe to PATH" when you install it.
+2. elektron-firmware-tool.exe goes into the folder  builder\resources\  (next to catalog.json).
+   If you have Syntakt MAX 1.0's Windows builder, copy it from that builder's resources folder: it's the same
+   MIT-licensed tool (licenses\elektron-firmware-tool-MIT.txt). Details: builder\README.txt.
+
+
+OPTION A: STOCK OS + PERFORMANCE MODS
+-------------------------------------
+For a Syntakt running Elektron's own OS (no MAX).
+
+1. Double-click  "Option A - Build Performance Mods.bat".
+2. Pick your official OS .syx (1.41 or 1.42).
+3. "Syntakt Performance Mods" is ticked already. The crash tripwire is optional (a diagnostic: if the unit ever
+   crashes it stops on a screen starting 57AC instead of freezing; photograph it).
+4. Build. The new .syx goes where you choose. Flash it.
+
+
+OPTION B: ADD THEM TO YOUR SYNTAKT MAX
+--------------------------------------
+For a Syntakt that already runs Syntakt MAX (public 1.0, or a later MAX that has a manifest). You keep every MAX
+mod you have; the Performance Mods go next to them. Nothing is added to the FX track's pages.
+
+You need two files:
+  * your MAX manifest, e.g.  max-1.0-manifest.json  (MAX 1.0's Windows builder keeps it in its resources folder);
+  * your official OS .syx, the one that manifest was made for (MAX 1.0 is OS 1.41).
+
+1. Double-click  "Option B - Add to my MAX build.bat".
+2. Pick the manifest, then the OS file. Say yes or no to the tripwire.
+3. It runs three steps and stops at the first that fails, writing nothing:
+     1/3  rebuilds your MAX alone and checks it is IDENTICAL to the manifest's golden hash
+          (proves your files are the right ones);
+     2/3  merges the Performance Mods and runs every guard (no clashing bytes, the mod area fits,
+          a safe boot margin);
+     3/3  writes  Syntakt_MAX_PerfMods_OS1.41.syx  next to your OS file.
+4. Flash that file.
+
+If your MAX has the FX-page master filter, PERFORM drives that one (its FX page keeps working); otherwise PERFORM
+brings its own filter (perf-filter). Details and what can make it refuse: docs\COMBINING_WITH_MAX.md.
+
+Command line, if you prefer (same three steps by hand):
+  python addon\perfmods_addon.py --manifest max-1.0-manifest.json --stock Syntakt_OS1.41.syx --verify-base
+  python addon\perfmods_addon.py --manifest max-1.0-manifest.json --stock Syntakt_OS1.41.syx --dry-run
+  python addon\perfmods_addon.py --manifest max-1.0-manifest.json --stock Syntakt_OS1.41.syx --out my_max_perf.syx
+
+
+AFTER FLASHING: FIRST CHECKS
+----------------------------
+1. Hold [TEMPO]: the JOG page opens. Play: the marker passes 12 o'clock on the one.
+2. Knobs B to F: LOAD, START, BRAKE, RANGE, PHASE, a step every 2-3 detents. G and H do nothing.
+3. SETTINGS > PERSONALIZE > JOG DISPLAY: VINYL or CDJ.
+4. [RIGHT]: PERFORM. Turn B slowly both ways: a smooth sweep that stops at THRU in the middle.
+   Keep the volume down the first time you turn C (RESO) high: it self-oscillates.
+5. Anything odd: note what you did and what you saw (a photo of the screen helps).
+
+What has been checked, and what has not: docs\STATUS.md
