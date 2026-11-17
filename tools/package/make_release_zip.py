@@ -1,6 +1,6 @@
 """Make the install zip (Option A builder + Option B add-on) from the files git tracks.
 
-    python tools/package/make_release_zip.py [--version 1.1-test35a] [--out release/]
+    python tools/package/make_release_zip.py [--version 1.2-test36] [--out release/]
 
 Only what a user needs goes in: the builder, the add-on, the launchers, the docs and the licences. No source trees,
 no LiveLink, no tools. Every file passes the same firmware check as the pre-commit hook, and the zip refuses to be
@@ -30,7 +30,7 @@ def tracked():
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--version", default="1.1-test35a")
+    ap.add_argument("--version", default="1.2-test36")
     ap.add_argument("--out", default=str(ROOT / "release"))
     a = ap.parse_args(argv)
     files = sorted(p for p in tracked() if any(p == i or (i.endswith("/") and p.startswith(i)) for i in INCLUDE))

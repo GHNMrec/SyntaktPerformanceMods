@@ -4,7 +4,10 @@
 
 * **Tried on the author's unit:** the earlier JOG-page rounds (the page, VINYL touch, LOAD, RANGE, PHASE, the
   display switch). His notes shaped TEST35.
-* **Not yet on a unit:** TEST35a (Syntakt Performance Mods).
+* **Tried on the author's unit:** TEST35a. His notes gave TEST36: PERFORM's own knobs (A filter, B RESO, nothing
+  else; the knob letters in its header), a slower filter knob with a hard stop at each end, RANGE 6 detents a step,
+  CDJ's outer rings turning only with the jog, and the push brake in both looks.
+* **Not yet on a unit:** TEST36.
 * **Shelved:** LINK.
 
 ## Checked in the emulator (this repository's tests, per OS tree)
@@ -16,15 +19,18 @@
   * the real interrupt path;
   * PERSONALIZE;
   * round 3: pause, phrase counter, pitch and MASTER TEMPO, brake fade, glides, reset;
-  * the screens (the CDJ rings turn).
+  * the screens (TEST36: CDJ's outer rings stand still while the platter turns and turn with the jog's tempo
+    change; the inside turns with the platter).
 * **TEST35a, the knobs:**
   * the layout: B LOAD, C START, D BRAKE, E RANGE, F PHASE, G and H nothing;
-  * the detents: 3 or 2 a step, and a turn back or another knob starts the count over;
-  * the mode comes from PERSONALIZE.
+  * the detents: 3 or 2 a step (RANGE 6 since TEST36), and a turn back or another knob starts the count over;
+  * TEST36: PERSONALIZE sets the look only; a push brakes in both;
+  * TEST36: on PERFORM no knob, push or [FUNC] + knob changes anything of JOG's, and the tempo stays put.
 * **TEST35a, LOAD:** eight distinct weights. From a 2 % bend, LOAD 1 is back exactly to the set tempo in about
   0.28 s and LOAD 8 in about 2.3 s, with no slow tail.
 * **TEST35a, PERFORM's filter:**
-  * the fine position;
+  * the fine position (TEST36: knob A, 96 detents a side, 4 detents an event at most; a turn far past either end
+    stays at that end, at every speed);
   * the stop at THRU;
   * the 16-bit cutoff glided into the filter's smoothed FREQ (monotonic, at most 1/32 of the way a block, off the
     256 grid);
@@ -42,7 +48,7 @@
   * the trimmed builder gives byte-identical files to the full MAX builder's catalog.
 * **The add-on:**
   * reproduces MAX 1.0's golden hash;
-  * merges the Performance Mods cleanly (boot margin 16,957);
+  * merges the Performance Mods cleanly (boot margin 16,973 with TEST36);
   * the merged image boots through the OS's own area loader with every chunk in place.
 
 ## On the final images (as the unit runs them)

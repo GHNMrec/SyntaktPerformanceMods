@@ -2,11 +2,12 @@
 perf-filter mod, on the stock image with the mods' patches (mods/tempojog/patch.json is the no-LINK build).
 
 - the sites: no LINK (the MIDI inputs stay stock), no LINK chunk or symbols;
-- knobs: B LOAD, C START, D BRAKE, E RANGE, F PHASE; G, H nothing; LOAD and RANGE a step every 3 detents, START,
+- knobs: B LOAD, C START, D BRAKE, E RANGE, F PHASE; G, H nothing; LOAD a step every 3 detents, RANGE 6, START,
   BRAKE and PHASE every 2 (a turn back, or another knob, starts over); B no longer sets VINYL / CDJ: PERSONALIZE does;
 - LOAD (the jog's weight): from a 2 % bend, back exactly to the set tempo in ~0.28 s (LOAD 1) .. ~2.3 s (LOAD 8), each
   LOAD slower than the one before, and no slow tail;
-- PERFORM: B a fine position (63 detents a side at a slow turn), a sweep stops at THRU before crossing, the cutoff is
+- PERFORM (TEST36: its own knobs, A the filter, B RESO, nothing else; A pushed THRU): A a fine position (96 detents
+  a side at a slow turn, 4 detents an event at most), a sweep stops at THRU before crossing, the cutoff is
   a 16-bit word glided by the audio interrupt into the filter's smoothed FREQ (monotonic, at most 1/32 of the way a
   block, off the 256 grid), the knob byte follows rounded; a change from elsewhere gives the filter back; PERFORM
   starts where the filter is;
@@ -102,9 +103,11 @@ def test_knob_layout_and_detents(m):
     assert m.u8("tj_brake") == 4
     m.knob(4, 1)
     assert m.u8("tj_brake") == 5 and m.u8("tj_pop") == 4      # D BRAKE
-    for _ in range(3):
+    for _ in range(5):
         m.knob(5, 1)
-    assert m.u8("tj_range") == 2 and m.u8("tj_pop") == 7      # E RANGE: 3 detents
+    assert m.u8("tj_range") == 1
+    m.knob(5, 1)
+    assert m.u8("tj_range") == 2 and m.u8("tj_pop") == 7      # E RANGE: 6 detents (TEST36)
     m.knob(6, 1)
     m.knob(6, 1)
     assert m.s32("tj_debt") == BEAT // 360 and m.u8("tj_pop") == 8   # F PHASE: 2 detents
@@ -158,15 +161,16 @@ def fl(m):
 
 def test_perform_fine_filter(m):
     perf(m, on=0)
-    m.knob(2, -1)                                             # B left: on, LP2 at its open end at once
+    m.knob(1, -1)                                             # A left: on, LP2 at its open end at once
     (t, f, r, _, on), s = fl(m)
     assert (t, on, f, s) == (1, 1, 127, 0x7F00) and m.u8("tj_fown") == 1
-    assert m.s32("tj_fqt") == 0x7F00 - 64 * 119 * 256 // 4032
+    assert m.s32("tj_fqt") == 0x7F00 - 42 * 119 * 256 // 4032
     for _ in range(400):
         m.tap()
     (t, f, r, _, on), s = fl(m)
     assert s == m.s32("tj_fqt") and f == (s + 128) >> 8 and s & 0xFF   # there, 16-bit, the byte rounded
-    m.knob(2, -100)
+    for _ in range(30):
+        m.knob(1, -4)                                         # (4 detents an event at most)
     assert m.s32("tj_fp") == -4032 and m.s32("tj_fqt") == 8 << 8      # closed as far as it goes
     prev, steps, d0 = s, [], s - (8 << 8)
     for _ in range(600):
@@ -176,26 +180,50 @@ def test_perform_fine_filter(m):
         prev = s
     assert s == 8 << 8 and all(0 <= x <= d0 // 32 + 8 for x in steps)   # smooth: monotonic, a 32nd at most
     assert sum(1 for x in steps if x) > 150                    # a long sweep, not a jump
-    m.knob(2, 200)                                             # a sweep right stops at THRU
-    assert m.s32("tj_fp") == 0 and fl(m)[0][0] == 7 and m.u8("tj_fown") == 0
-    m.knob(2, 1)                                               # then HP2 from its open end
+    for k in range(60):                                       # a sweep right stops at THRU
+        m.knob(1, 4)
+        if m.s32("tj_fp") >= 0:
+            break
+    assert k >= 10 and m.s32("tj_fp") == 0 and fl(m)[0][0] == 7 and m.u8("tj_fown") == 0
+    m.knob(1, 1)                                               # then HP2 from its open end
     (t, f, r, _, on), s = fl(m)
     assert t == 3 and s == 0 and f == 0
-    m.knob(3, 1)
-    m.knob(3, 9)                                               # C: RESO, at most 2 a fast event
+    m.knob(2, 1)
+    m.knob(2, 9)                                               # B: RESO, at most 2 a fast event
     assert fl(m)[0][2] == 3
-    m.key(41, 1)                                               # B pushed: THRU
+    m.key(40, 1)                                               # A pushed: THRU
     assert fl(m)[0][0] == 7 and fl(m)[0][4] == 1 and m.u8s("tj_fpos") == 0
-    m.knob(2, 10)
+    m.knob(1, 10)
     m.key(1, 1)
-    m.key(41, 1)                                               # [FUNC] + B pushed: the filter off
+    m.key(40, 1)                                               # [FUNC] + A pushed: the filter off
     m.key(1, 0)
     assert fl(m)[0][4] == 0
 
 
+def test_perform_leaves_jog_alone(m):
+    """TEST36: on PERFORM no knob or push changes JOG (A the filter, B RESO; C-H, [FUNC] + G / H: nothing)"""
+    perf(m, on=1)
+    names = ("tj_btgt", "tj_debt", "tj_load", "tj_start", "tj_brake", "tj_range", "tj_gld", "tj_phr", "tj_touch",
+             "tj_pop", "tj_bend")
+    before = {n: bytes(m.uc.mem_read(m.sym[n], 4)) for n in names}
+    for n in range(1, 9):
+        for d in (1, -1, 3, -5):
+            assert m.knob(n, d) == 1
+            assert m.knob(n, d, held=1) == 1
+    m.key(1, 1)
+    for n in (7, 8):
+        m.knob(n, 1)
+    m.key(1, 0)
+    m.key(40, 1)                                              # A pushed: THRU, not a touch
+    m.key(40, 0)
+    assert {n: bytes(m.uc.mem_read(m.sym[n], 4)) for n in names} == before
+    for _ in range(50):
+        assert m.rate() == T120
+
+
 def test_perform_gives_the_filter_back(m):
     perf(m, on=0)
-    m.knob(2, -20)
+    m.knob(1, -20)
     for _ in range(5):
         m.tap()
     m.uc.mem_write(FBUF + 1, bytes([90]))                     # the FX page (or MIDI) sets FREQ
@@ -214,7 +242,7 @@ def test_perform_starts_where_the_filter_is(m):
     m3.w32(m3.sym["tj_mfp"], 0)                               # no filter in the build: nothing
     m3.jog()
     m3.key(17, 1)
-    m3.knob(2, 5)
+    m3.knob(1, 5)
     m3.tap()
     assert m3.s32("tj_fp") == 0
 
@@ -389,8 +417,9 @@ def test_perform_header_shows_the_cutoff_in_hz(rig, w):
     uc.mem_write(can, struct.pack(">5I", 0, 128, 64, 2, can + 0x100))
     g.call(sym["tj_draw"], [VIEW, can])
     uc.hook_del(h)
-    assert texts[0] == "LP2" and texts[2] == "RES 30" and texts[3:] == ["LP", "HP"]
-    t, want = texts[1], 5.9 * 2 ** (0.0926 * w / 256)
+    assert texts[0] == "LP2" and texts[2] == "RES 30 (B)" and texts[3:] == ["LP", "HP"]   # TEST36: the knobs
+    assert texts[1].endswith(" (A)")
+    t, want = texts[1][:-4], 5.9 * 2 ** (0.0926 * w / 256)
     got = float(t[:-2]) if t.endswith("HZ") else float(t[:-1]) * 1000
     tol = 1.5 if want < 1000 else 100 if want < 10000 else 500
     assert abs(got - want) <= tol + want * 0.004, (t, want)

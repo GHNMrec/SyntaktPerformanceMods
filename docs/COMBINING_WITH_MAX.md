@@ -54,7 +54,7 @@ overflows; the boot margin is under 4096 bytes. Nothing is written when it refus
 ## What was verified (public MAX 1.0, OS 1.41)
 
 * This builder reproduces MAX 1.0's golden SHA-256 (`7cb4bfd3...`) exactly.
-* MAX 1.0 + Performance Mods (TEST35a code): every patch guard passes, no byte is patched twice, boot margin 16,957
+* MAX 1.0 + Performance Mods (TEST36 code): every patch guard passes, no byte is patched twice, boot margin 16,973
   bytes; PERFORM is linked to perf-filter; nothing in MAX 1.0 hooks the FX filter CV call.
 * In the emulator, section 3 of that build goes through the OS's own area loader: every chunk of every MAX mod and
   of ours ends up at its RAM address, the rest of the 128 KB area is zero and the BSS around it is cleared

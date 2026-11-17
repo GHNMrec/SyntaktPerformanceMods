@@ -14,7 +14,7 @@ Performance mods for the Elektron Syntakt (OS 1.41 and 1.42).
 Everything is in [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
 
 > **Status: EXPERIMENTAL.** Every part is checked in an emulator (see [docs/STATUS.md](docs/STATUS.md)), but the
-> TEST35a changes have not run on a real unit yet. Before you flash anything:
+> TEST36 changes have not run on a real unit yet. Before you flash anything:
 > * back up your projects and samples;
 > * keep a known-good official `.syx` at hand for recovery mode.
 

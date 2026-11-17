@@ -8,7 +8,7 @@
  * and destructors (slots 0 / 1) are ours while tj_view is that view, stock's otherwise.
  *  - A turn: the ring, a pitch bend that follows how fast you spin and eases back when you stop (both modes).
  *  - A push (VINYL): touch the platter: BRAKE to a stop, HOLD; turn while pushed to walk the beat on by hand (forward
- *    only); let go: START back to speed. In CDJ mode a push does nothing, as on a CDJ.
+ *    only); let go: START back to speed. TEST36: the same in both looks (JOG DISPLAY is the look only).
  *  - B mode VINYL / CDJ, C LOAD 1-8 (the jog's weight), D BRAKE 0-3 s, E START 0-3 s, G RANGE 6/10/16/WIDE (the bend
  *    cap), H PHASE (an exact nudge, 1/360 beat a click). LEVEL/DATA, [UP]/[DOWN]: the tempo, as in the TEMPO menu.
  *    [FUNC] held: the settings at a glance.
@@ -17,7 +17,9 @@
  *    the word itself, so the clock is stock's. MIDI clock out is sent from the same tempo interrupt, so it follows.
  *  - The screen: a platter whose marker turns once a bar (12 o'clock = the one), the mode, the live BPM, the
  *    deviation and a pitch meter. SETTINGS > PERSONALIZE gets a "JOG DISPLAY" line: VINYL (a record with strobe dots
- *    and grooves) or CDJ (a CDJ jog display). RAM only: VINYL after power-on. */
+ *    and grooves) or CDJ (a CDJ jog display). RAM only: VINYL after power-on.
+ *  - TEST36: PERFORM ([RIGHT]) owns its knobs: A the DJ filter (pushed: THRU; [FUNC] + push: off), B its RESO; no
+ *    other knob does anything there, so PERFORM never changes JOG. */
 typedef unsigned int u32;
 typedef int s32;
 typedef unsigned short u16;
@@ -621,6 +623,14 @@ s32 tj_enc_c(void *view, const u8 *ev)
         tj_gl = 0;
         return 0;
     }
+    if (tj_page) {                              /* TEST36: PERFORM owns its knobs: A the DJ filter, B its RESO; */
+        if (n != 1 && n != 2)                   /* the others (and [FUNC] + G / H) leave JOG alone here */
+            return 1;
+        tj_perf_knob(n, d);
+        tj_lease = 3000;
+        REDRAW(view);
+        return 1;
+    }
     if (tj_func) {                              /* TEST34: [FUNC] held: G = the glide, H = the phrase */
         if (n == 7)
             tj_gld = (u8)clamp(tj_gld + one, 0, 5);
@@ -630,9 +640,7 @@ s32 tj_enc_c(void *view, const u8 *ev)
         REDRAW(view);
         return 1;
     }
-    if (tj_page && (n == 2 || n == 3)) {        /* TEST34: PERFORM: B the DJ filter, C its RESO */
-        tj_perf_knob(n, d);
-    } else if (n == 1) {
+    if (n == 1) {
         if (tj_mode && (tj_touch || held)) {    /* VINYL, platter held: walk the beat on (1/8 beat a click) */
             tj_debt = clamp(tj_debt + d * (BEAT / 8), 0, BEAT);
         } else {                                /* the ring: a click a step, whatever the turn's speed (TEST34) */
@@ -650,8 +658,8 @@ s32 tj_enc_c(void *view, const u8 *ev)
         tj_brake = (u8)clamp(tj_brake + step(det(n, d, 2), held), 0, 30);
         tj_bstep = tj_brake ? Q / (150 * tj_brake) : Q;
         pop(4);
-    } else if (n == 5) {                        /* E RANGE (3 detents a step) */
-        tj_range = (u8)clamp(tj_range + det(n, d, 3), 0, 3);
+    } else if (n == 5) {                        /* E RANGE (TEST36: 6 detents a step, 4 choices) */
+        tj_range = (u8)clamp(tj_range + det(n, d, 6), 0, 3);
         pop(7);
     } else if (n == 6) {                        /* F PHASE: 1/360 beat a step (2 detents), pressed 10 */
         s32 c = det(n, d, 2) * (held ? 10 : 1);
@@ -716,6 +724,10 @@ s32 tj_key_c(void *view, const u8 *ev)
         if (tj_skip) {
             if (!(f & 1))
                 tj_skip = 0;
+            return 1;
+        }
+        if (tj_page) {                          /* TEST36: PERFORM: A pushed = the filter's snap, not a touch */
+            tj_keys(view, code, (f & 1) && !(f & 8));
             return 1;
         }
         tj_touch = (f & 1) && tj_mode;
@@ -872,10 +884,11 @@ static void platter(u32 bar, s32 touch)
         }
         ray(bar, 10, 21);                       /* the marker: once a bar, 12 o'clock = the one */
     } else {                                    /* CDJ: the jog display */
-        circle(26);                             /* TEST35: the rings turn with the platter, as the record's */
-        dashes(24, bar, 12, 154);               /* grooves do: an outer dashed ring and the ticks */
+        u32 st = (u32)(tj_strobe >> 7);         /* TEST36: the outer rings move as the vinyl's strobe dots: */
+        circle(26);                             /* still at the set tempo, turning while the jog moves it */
+        dashes(24, st, 12, 154);
         for (i = 0; i < 32; i += 2)
-            ray(((u32)i << 11) + bar, 20, 21);
+            ray(((u32)i << 11) + st, 20, 21);
         for (i = 17; i <= 22; i++) {            /* the operation marker */
             s32 k, n = i;
             for (k = -n / 2; k <= n / 2; k++) {
@@ -1106,11 +1119,11 @@ PF void tj_draw(void *view, void *c)
 #ifndef NOLINK
     if (link) {
         link_top(PLAYING == 1 ? (s32)(tj_pos / BEAT) + 1 : 0);
-        TEXT(c, F_LBL, 96, 41, 2, "%s", tj_mode ? "VINYL" : "CDJ");
+        TEXT(c, F_LBL, 96, 41, 2, "%s", tj_disp ? "CDJ" : "VINYL");
     } else
 #endif
     {
-        TEXT(c, F_BIG, 96, 54, 2, "%s", tj_mode ? "VINYL" : "CDJ");
+        TEXT(c, F_BIG, 96, 54, 2, "%s", tj_disp ? "CDJ" : "VINYL");
     }
     if (tj_popt && tj_pop) {                    /* a setting just turned */
         setting(tj_pop, b);
@@ -1268,13 +1281,13 @@ PF2 void tj_perf_knob(s32 n, s32 d)
     u8 *p = tj_mfp;
     if (!p)
         return;
-    if (n == 2) {                               /* slow: 64 a detent (63 detents a side), fast: 128 */
-        s32 e = d * (d > 2 || d < -2 ? 128 : 64);
+    if (n == 1) {                               /* TEST36: A. slow: 42 a detent (96 detents a side), fast: 84; */
+        s32 e = clamp(d, -4, 4) * (d > 2 || d < -2 ? 84 : 42);   /* an event moves 4 detents at most */
         if (tj_fp && ((tj_fp < 0) != (tj_fp + e < 0)) && tj_fp + e)
             e = -tj_fp;                         /* a sweep stops at THRU before it crosses to the other side */
         tj_fp = clamp(tj_fp + e, -FSIDE, FSIDE);
         flt();
-    } else                                      /* C: RESO, a step a detent (the filter glides it) */
+    } else                                      /* B: RESO, a step a detent (the filter glides it) */
         p[MF_RESO] = (u8)clamp(p[MF_RESO] + clamp(d, -2, 2), 0, 127);
 }
 
@@ -1346,7 +1359,7 @@ PF2 s32 tj_keys(void *view, u32 code, s32 down)
     } else if (code >= 24 && code <= 27 && tj_func) {   /* [FUNC] + [TRIG 1-4]: 130 140 150 160 */
         if (down)
             tj_glide(view, (130 + 10 * (s32)(code - 24)) * 120);
-    } else if (code == 41 && tj_page) {         /* B pushed: the filter snaps to THRU; [FUNC]: the filter off */
+    } else if (code == 40 && tj_page) {         /* TEST36: A pushed: the filter snaps to THRU; [FUNC]: the filter off */
         if (down && tj_mfp) {
             tj_fp = 0;
             tj_fpos = 0;
@@ -1602,15 +1615,19 @@ void tj_perform(void *c, s32 dev)
         TEXT(c, F_LBL, 64, 57, 2, "%s", "NO MASTER FILTER");
     else if (!on || type == 7) {
         TEXT(c, F_LBL, 0, 57, 0, "%s", "PERFORM");
-        TEXT(c, F_LBL, 127, 57, 4, "%s", on ? "THRU" : "FILTER OFF");
+        TEXT(c, F_LBL, 127, 57, 4, "%s", on ? "THRU (A)" : "FILTER OFF (A)");
     } else {
         w = *(s32 *)(p - 19) >> 16;
         TEXT(c, F_LBL, 0, 57, 0, "%s", type == 1 ? "LP2" : type == 3 ? "HP2" : "FLT");
         hz_text(b, hz_log(w));
-        TEXT(c, F_LBL, 64, 57, 2, "%s", b);
+        for (q = b; *q; q++)
+            ;
+        q[0] = ' '; q[1] = '('; q[2] = 'A'; q[3] = ')'; q[4] = 0;   /* TEST36: the knob, as the OS's own pages */
+        TEXT(c, F_LBL, 18, 57, 0, "%s", b);     /* TEST36: from the left, beside the type (room for RES's (B)) */
         q = b;
         *q++ = 'R'; *q++ = 'E'; *q++ = 'S'; *q++ = ' ';
-        num(q, p[MF_RESO]);
+        q = num(q, p[MF_RESO]);
+        q[0] = ' '; q[1] = '('; q[2] = 'B'; q[3] = ')'; q[4] = 0;
         TEXT(c, F_LBL, 127, 57, 4, "%s", b);
         xc = (hz_log(w) - 283247) * (127 * 16) / 653127;
     }
@@ -1663,7 +1680,7 @@ void tj_inv_tog(u32 *fn)                         /* [YES]: functor storage holds
 {
     u8 *v = (u8 *)*(u32 *)fn[0];
     tj_disp ^= 1;
-    tj_mode = !tj_disp;                         /* TEST35: the look decides the behaviour (CDJ: a push does nothing) */
+    tj_mode = 1;                                /* TEST36: the look only; a push brakes in both (was: CDJ no push) */
     tj_touch = 0;
     REDRAW(v + 56);
 }
@@ -1673,7 +1690,7 @@ void tj_inv_delta(u32 *fn, u32 unused, s32 d)    /* [LEFT] / [RIGHT] */
     u8 *v = (u8 *)*(u32 *)fn[0];
     (void)unused;
     tj_disp = (u8)clamp(tj_disp + d, 0, 1);
-    tj_mode = !tj_disp;
+    tj_mode = 1;
     tj_touch = 0;
     REDRAW(v + 56);
 }

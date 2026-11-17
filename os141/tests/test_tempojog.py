@@ -204,8 +204,8 @@ def test_the_ring_follows_the_spin_and_eases_back(m):
     for _ in range(200):                                      # a wild spin backwards: capped at RANGE (10 %)
         m.knob(1, -1)
     assert m.s32("tj_btgt") == -10 * (Q // 100) * 16      # Q20
-    for _ in range(3):
-        m.knob(5, 1)                                          # TEST35: E RANGE, 3 detents: 16 %
+    for _ in range(6):
+        m.knob(5, 1)                                          # TEST36: E RANGE, 6 detents: 16 %
     for _ in range(300):
         m.knob(1, -1)
     assert m.s32("tj_btgt") == -16 * (Q // 100) * 16
@@ -246,8 +246,8 @@ def test_touch_brakes_holds_and_starts(m):
     assert m.rate() == 0
 
 
-def test_cdj_mode_ignores_the_push(m):
-    """TEST35: knob B is LOAD now; SETTINGS > PERSONALIZE > JOG DISPLAY sets the look and the behaviour"""
+def test_cdj_look_still_brakes(m):
+    """TEST36: SETTINGS > PERSONALIZE > JOG DISPLAY is the look only: in CDJ a push still brakes, as in VINYL"""
     m.jog()
     m.knob(2, -1)
     assert m.u8("tj_mode") == 1                               # B: not the mode any more
@@ -255,9 +255,11 @@ def test_cdj_mode_ignores_the_push(m):
     m.uc.mem_write(fn, struct.pack(">I", box))
     m.uc.mem_write(box, struct.pack(">I", 0x47B1_0000))
     m.call(m.sym["tj_inv_delta"], [fn, 0, 1])                 # PERSONALIZE: CDJ
-    assert m.u8("tj_disp") == 1 and m.u8("tj_mode") == 0
+    assert m.u8("tj_disp") == 1 and m.u8("tj_mode") == 1
     m.key(40, 1)
-    assert m.u8("tj_touch") == 0 and [m.rate() for _ in range(100)] == [T120] * 100
+    assert m.u8("tj_touch") == 1
+    r = [m.rate() for _ in range(3000)]
+    assert r[-1] < T120 // 10                                 # braked toward a stop
 
 
 def test_crank_walks_the_beat_on_never_back(m):
@@ -403,11 +405,18 @@ def test_screen(rig):
     assert on(p, (12, 17)) == [1, 1] and on(p, (-12, -17)) == [0, 0]   # the marker at 12 o'clock on the one
     p = shot(2 * BEAT)                                        # half a bar on: 6 o'clock
     assert on(p, (-12, -17)) == [1, 1] and on(p, (12, 17)) == [0, 0]
-    uc.mem_write(sym["tj_disp"], b"\x01")                   # TEST35: CDJ, its rings turn with the platter
+    uc.mem_write(sym["tj_disp"], b"\x01")                   # TEST36: CDJ: the outer rings turn only with the jog
     rings = lambda p: {(x, y) for x in range(4, 57) for y in range(9, 62)   # noqa: E731
-                       if 19.5 <= ((x - 30) ** 2 + (y - 35) ** 2) ** 0.5 <= 24.5 and p(x, y)}
-    a, b = rings(shot(0)), rings(shot(BEAT // 3))
-    assert len(a) > 40 and len(a ^ b) > 20                    # lit, and different a moment later
+                       if 23.5 <= ((x - 30) ** 2 + (y - 35) ** 2) ** 0.5 <= 24.5 and p(x, y)}
+    inner = lambda p: {(x, y) for x in range(4, 57) for y in range(9, 62)   # noqa: E731
+                       if ((x - 30) ** 2 + (y - 35) ** 2) ** 0.5 <= 18.5 and p(x, y)}
+    a, b = shot(0), shot(BEAT // 3)
+    assert len(rings(a)) > 40 and rings(a) == rings(b)        # the platter turning: the outer rings stay
+    assert inner(a) != inner(b)                               # the inside turns with the platter
+    uc.mem_write(sym["tj_strobe"], struct.pack(">i", 3000 << 7))   # the jog moved the tempo: they turn
+    c = shot(0)
+    assert rings(c) != rings(a) and inner(c) == inner(a)
+    uc.mem_write(sym["tj_strobe"], bytes(4))
     uc.mem_write(sym["tj_disp"], b"\x00")
     uc.hook_del(h)
 

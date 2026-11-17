@@ -17,17 +17,19 @@ A platter turns once a bar; 12 o'clock is the one. It follows the sequencer:
 * [STOP] resets it;
 * **[PLAY] while playing pauses it exactly where it is**; [PLAY] again carries on from there, still on the bar.
 
-SETTINGS > PERSONALIZE > **JOG DISPLAY** picks **VINYL** or **CDJ**. It sets both the look and the behaviour:
+SETTINGS > PERSONALIZE > **JOG DISPLAY** picks **VINYL** or **CDJ**. It's the look only: in both, pushing A
+touches the platter (BRAKE, HOLD, START).
 
-* **VINYL:** a record with grooves and strobe dots. Pushing A touches the platter.
-* **CDJ:** a CDJ jog display. Its tick ring and outer dashed ring turn with the platter. Pushing A does nothing,
-  as on a CDJ.
+* **VINYL:** a record with grooves and strobe dots. The strobe dots stand still at the set tempo and turn while the
+  jog moves it.
+* **CDJ:** a CDJ jog display. The inside (the marker) turns with the platter; the outer dashed ring and the tick
+  ring stand still and turn only while the jog moves the tempo, as the vinyl's strobe dots do.
 
 ## Knobs
 
 | Knob | Job |
 |---|---|
-| **A** | The jog. Spinning bends the tempo by how fast you spin; the bend eases back by LOAD when you stop. Each click is a fixed 0.25 %. In VINYL, **pushing A touches the platter**: BRAKE to a stop, HOLD, START back up. Turning while pushed walks the beat on. |
+| **A** | The jog. Spinning bends the tempo by how fast you spin; the bend eases back by LOAD when you stop. Each click is a fixed 0.25 %. **Pushing A touches the platter**: BRAKE to a stop, HOLD, START back up. Turning while pushed walks the beat on. |
 | **B** | **LOAD**, the jog's weight, 1–8. From a 2 % bend, LOAD 1 is back in about 0.3 s and LOAD 8 coasts about 2.3 s, with no slow tail at the end. Default 3 (about 0.6 s). |
 | **C** | **START** time (0–3 s; pushed while turning: 0.5 s a step). |
 | **D** | **BRAKE** time (0–3 s; pushed while turning: 0.5 s a step). |
@@ -37,7 +39,7 @@ SETTINGS > PERSONALIZE > **JOG DISPLAY** picks **VINYL** or **CDJ**. It sets bot
 
 The selection knobs don't skip:
 
-* LOAD and RANGE move one step every **3 detents**;
+* LOAD moves one step every **3 detents**, RANGE (only four choices) every **6**;
 * START, BRAKE and PHASE move one step every **2 detents**;
 * turning back, or turning another knob, starts the count over.
 
@@ -78,16 +80,19 @@ a platter running down. Again this is on the live copy: your AMP VOL is untouche
 
 ## PERFORM page
 
-**[RIGHT]** on the JOG page opens PERFORM, which takes the whole screen; **[LEFT]** goes back. Its knobs:
+**[RIGHT]** on the JOG page opens PERFORM, which takes the whole screen; **[LEFT]** goes back. PERFORM has its own
+knobs, shown in the header as on the OS's own pages: the cutoff with **(A)**, RESO with **(B)**. No other knob does
+anything on PERFORM, so nothing there changes the JOG page.
 
-* **B = the DJ filter.** Left of centre is LP2, closing as you turn; right of centre is HP2, opening; the centre
+* **A = the DJ filter.** Left of centre is LP2, closing as you turn; right of centre is HP2, opening; the centre
   is THRU.
   * A turn that crosses the centre stops at THRU; the next detent goes on to the other side.
-  * A slow turn takes about 63 detents from the centre to the end of one side. A fast turn moves twice as far per
-    detent.
-* **C = RESO**, a step a detent. Above about 90 it climbs past the stock maximum into self-oscillation (Polivoks
+  * Each side ends with a hard stop: turning on past the end does nothing.
+  * A slow turn takes about 96 detents from the centre to the end of one side. A fast turn moves twice as far per
+    detent; one move of the knob counts 4 detents at most, however fast it is spun.
+* **B = RESO**, a step a detent. Above about 90 it climbs past the stock maximum into self-oscillation (Polivoks
   style). Keep the volume down the first time.
-* **Push B:** snaps to THRU. **[FUNC] + push B:** filter off.
+* **Push A:** snaps to THRU. **[FUNC] + push A:** filter off.
 
 ### Why it sweeps like an analog knob
 
@@ -135,13 +140,15 @@ longer fits its chunks with TEST35's additions. Bringing it back means making ro
 ## Check list for your first flash
 
 1. Hold [TEMPO]: JOG opens. Play a pattern: the marker passes 12 o'clock on the one.
-2. B, C, D, E, F: LOAD, START, BRAKE, RANGE, PHASE, each a step every 2–3 detents, nothing skipping. G and H do
-   nothing.
+2. B, C, D, E, F: LOAD, START, BRAKE, RANGE, PHASE, each a step every 2–3 detents (RANGE 6), nothing skipping. G
+   and H do nothing.
 3. LOAD 1 against LOAD 8: spin A and let go. Light snaps back, heavy coasts, and neither crawls at the end.
-4. PERSONALIZE > JOG DISPLAY = CDJ: the rings turn, and a push of A does nothing. VINYL: a push brakes.
+4. PERSONALIZE > JOG DISPLAY = CDJ: the outer rings stand still until you spin A, and a push of A brakes, as in
+   VINYL.
 5. Spin A both ways: tempo and pitch bend together; [YES]: tempo only.
 6. [FUNC] + [TRIG 2] from 130: a 4-bar glide landing on 140.00.
-7. [RIGHT]: PERFORM. Turn B slowly both ways: no steps, a stop at THRU. Turn C. Push B; [FUNC] + push B.
+7. [RIGHT]: PERFORM. Turn A slowly both ways: no steps, a stop at THRU, a hard stop at each end. Turn B (RESO).
+   Push A; [FUNC] + push A. Turn C–H: nothing happens, and back on JOG ([LEFT]) nothing has changed.
 8. Play while on PERFORM: the bars move, and closing the low-pass drops the highs. Does the screen keep up? Are the
    other pages as smooth as before?
 9. If the unit stops on an exception screen starting `57AC` (the tripwire), photograph the whole screen.

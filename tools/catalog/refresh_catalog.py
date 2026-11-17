@@ -30,6 +30,9 @@ for osv, tree in (("1.41", "os141"), ("1.42", "os142")):
             p = next(p for p in o["mods"][jog]["patches"] if p["addr"] == rec["patch"])
             k = 2 * rec["offset"]
             want = int(o["mods"][jog]["symbols"]["tj_mfp"], 16) - int(p["ram"], 16)
+            if rec["offset"] != want and p["hex"][2 * want:2 * want + len(rec["old"])] == rec["old"]:
+                rec["offset"], k, dirty = want, 2 * want, True     # the code grew: tj_mfp moved, the record follows
+                print(f"OS {osv}: the {rec['when']} link follows tj_mfp to offset {want}")
             if p["hex"][k:k + len(rec["old"])] != rec["old"] or rec["offset"] != want:
                 sys.exit(f"OS {osv}: a filter compat record no longer matches {jog}'s patch")
 if "--check" in sys.argv:
