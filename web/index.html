@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syntakt Performance Mods builder</title>
+<meta name="description" content="Build your own Syntakt OS with the Performance Mods, in your browser, from your official OS file. Nothing is uploaded.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23111213' stroke='%23f0a03c' stroke-width='3'/%3E%3Cline x1='16' y1='16' x2='16' y2='5' stroke='%23f0a03c' stroke-width='3'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#111213;--card:#1a1c1e;--line:#2c2f33;--text:#e8e6e3;--mute:#a4a8ae;--acc:#f0a03c;--acc-ink:#111;--ok:#3fae5a;--okt:#8fdca2;--beta:#d9822b;--exp:#cf4a3f;--bad:#ff8a80;--lockbg:#16231a;--lockline:#2f4a36;--lockt:#b9dcc2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--acc)}
+nav{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:14px 24px;border-bottom:1px solid var(--line)}
+.logo{font-weight:800;letter-spacing:.5px}.logo span{color:var(--acc)}
+nav .src{margin-left:auto;border:1px solid var(--line);padding:6px 12px;border-radius:8px;color:var(--text);text-decoration:none;font-size:14px}
+nav .src:hover{border-color:var(--acc)}
+main{max-width:920px;margin:0 auto;padding:28px 16px 64px}
+h1{margin:0 0 6px;font-size:clamp(22px,4vw,30px);line-height:1.2}
+.lede{margin:0;color:var(--mute)}
+.lock{display:flex;gap:10px;margin:18px 0 26px;padding:12px 16px;border:1px solid var(--lockline);background:var(--lockbg);border-radius:10px;color:var(--lockt);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px}
+.card h2{margin:0 0 12px;font-size:17px;display:flex;align-items:center;gap:10px}
+.n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--acc);color:var(--acc-ink);display:inline-grid;place-items:center;font-weight:800;font-size:14px}
+.card.off{opacity:.45;pointer-events:none}
+.drop{border:1.5px dashed #444a52;border-radius:10px;padding:18px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer}
+.drop.hover{border-color:var(--acc);background:#201c16}
+.drop b{word-break:break-all}
+.mute{color:var(--mute);font-size:13.5px}
+.ok{color:var(--okt)}.bad{color:var(--bad)}
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);font:inherit;font-size:14px;cursor:pointer}
+.tab[aria-selected=true]{background:#2a2420;border-color:var(--acc);color:var(--text)}
+.mod{display:grid;grid-template-columns:24px 1fr auto;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
+.mod:first-child{border-top:0}
+.mod input{width:18px;height:18px;margin:3px 0 0;accent-color:var(--acc)}
+.mod label{font-weight:600;cursor:pointer}
+.mod .d{color:var(--mute);font-size:13.5px;margin-top:2px}
+details summary{cursor:pointer;color:var(--acc);font-size:13px;margin-top:4px}
+details p{margin:6px 0 0;color:var(--mute);font-size:13px}
+.badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:5px;color:#fff;white-space:nowrap}
+.STABLE{background:var(--ok)}.BETA{background:var(--beta)}.EXPERIMENTAL{background:var(--exp)}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-top:12px;font-size:13px;color:var(--mute)}
+.row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--acc);color:var(--acc-ink);font:inherit;font-weight:800;border:0;border-radius:10px;padding:12px 22px;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn2{background:transparent;color:var(--text);font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px 16px;cursor:pointer;font-size:14px}
+.btn2:hover{border-color:var(--acc)}
+.bar{height:8px;background:#26292d;border-radius:5px;overflow:hidden;flex:1;min-width:160px}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .3s}
+#status{margin-top:10px;font-size:14px}
+#notes{margin:8px 0 0;padding-left:18px;color:var(--mute);font-size:13px}
+.result{margin-top:16px;padding:14px;border-radius:10px;border:1px solid var(--lockline);background:var(--lockbg)}
+.result code{font-size:12.5px;word-break:break-all}
+ol.how{margin:8px 0 0;padding-left:20px}ol.how li{margin:4px 0}
+.err{margin-top:14px;padding:12px 14px;border-radius:10px;border:1px solid #6b2a26;background:#2a1513;color:#ffd2cc}
+footer{color:var(--mute);font-size:13px;text-align:center;margin-top:30px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">SYNTAKT <span>PERFORMANCE MODS</span></div>
+  <a class="src" id="srclink" href="https://github.com/GHNMrec/SyntaktPerformanceMods">Source code (GitHub)</a>
+</nav>
+<main>
+  <h1>Build your own Syntakt OS with the Performance Mods</h1>
+  <p class="lede">The JOG page (a CDJ / vinyl jog on [TEMPO]) and PERFORM (a smooth DJ filter over the whole mix, drawn over its live spectrum).
+    <a href="https://github.com/GHNMrec/SyntaktPerformanceMods/blob/main/docs/USER_GUIDE.md">User guide</a></p>
+  <div class="lock" role="note">🔒 <span>Everything happens in this browser tab. Your OS file is never uploaded, and this site hosts no firmware: you bring Elektron's official file, and the result is saved only to your own computer.</span></div>
+
+  <section class="card" id="s1">
+    <h2><span class="n">1</span>Your official Syntakt OS</h2>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="osmsg">
+      <div><b id="osname">Drop your Syntakt OS .syx here, or click to choose it</b>
+        <div class="mute" id="osmsg">The unmodified OS 1.41 or 1.42 from <a href="https://www.elektron.se/" target="_blank" rel="noopener">elektron.se</a> (Support &amp; Downloads, Syntakt). It's recognised by its SHA-256; anything else is refused.</div></div>
+      <button class="btn2" type="button" id="choose">Choose file…</button>
+    </div>
+    <input type="file" id="file" accept=".syx" hidden>
+  </section>
+
+  <section class="card off" id="s2">
+    <h2><span class="n">2</span>Choose what goes in</h2>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-stock" aria-selected="true">Start from the stock OS</button>
+      <button class="tab" role="tab" id="tab-max" aria-selected="false">Add to my Syntakt MAX</button>
+    </div>
+    <div id="pane-stock">
+      <div id="mods"></div>
+      <div class="mute" id="cpu" style="margin-top:8px"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div id="pane-max" hidden>
+      <p class="mute" style="margin-top:0">For a Syntakt already running Syntakt MAX (public 1.0, or a later MAX that has a manifest). Your MAX mods stay as they are; the Performance Mods go next to them. Nothing is added to the FX track's pages.</p>
+      <div class="drop" id="mdrop" tabindex="0" role="button">
+        <div><b id="mname">Drop your MAX manifest here (max-1.0-manifest.json)</b>
+          <div class="mute" id="mmsg">MAX 1.0's Windows builder keeps it in its <code>resources</code> folder. It must match the OS file from step 1.</div></div>
+        <button class="btn2" type="button" id="mchoose">Choose file…</button>
+      </div>
+      <input type="file" id="mfile" accept=".json" hidden>
+      <div class="mod" style="border-top:0;margin-top:8px">
+        <input type="checkbox" id="mtrip"><div><label for="mtrip">Also add the crash tripwire (diagnostic)</label>
+          <div class="d">If the unit ever crashes it stops on a screen starting 57AC (photograph it) instead of freezing silently. Safe to leave out.</div></div><span></span>
+      </div>
+      <p class="mute">The build first rebuilds your MAX alone and checks it matches its own golden hash, so you know the files are right before anything is added. It takes about a minute.</p>
+    </div>
+  </section>
+
+  <section class="card off" id="s3">
+    <h2><span class="n">3</span>Build and save</h2>
+    <div class="row">
+      <button class="btn" id="build" disabled>Build</button>
+      <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+    </div>
+    <div id="status" class="mute" role="status" aria-live="polite">Pick your OS file first.</div>
+    <ul id="notes"></ul>
+    <div id="err" class="err" hidden></div>
+    <div id="result" class="result" hidden>
+      <div class="row" style="justify-content:space-between">
+        <div><b class="ok">✓ Built and verified.</b> <span id="rinfo" class="mute"></span></div>
+        <button class="btn" id="save">Save .syx to my computer</button>
+      </div>
+      <div class="mute" style="margin-top:8px">SHA-256 <code id="rsha"></code></div>
+      <h3 style="font-size:15px;margin:16px 0 4px">Send it to the Syntakt with Elektron Transfer</h3>
+      <ol class="how">
+        <li>Back up your projects and samples first. Keep the official OS file at hand.</li>
+        <li>Connect the Syntakt by USB and turn it on. Open <a href="https://www.elektron.se/download-support-transfer" target="_blank" rel="noopener">Elektron Transfer</a>.</li>
+        <li>On the CONNECTION page, pick the Syntakt for MIDI IN and MIDI OUT.</li>
+        <li>On the DROP page, drag in the .syx you just saved. Press [YES] on the Syntakt when it asks; a bar shows the progress, and the unit restarts by itself. Don't turn it off meanwhile.</li>
+        <li>If something goes wrong: hold [FUNC] while powering on, [TRIG 4] = OS UPGRADE, and send the official OS with Transfer's legacy OS upgrade. That route needs a MIDI interface on the Syntakt's MIDI port (not USB).</li>
+      </ol>
+      <p class="mute">This file is yours: don't pass it on. Anyone else builds their own here from their own OS file.</p>
+    </div>
+  </section>
+
+  <footer>Open source (MIT). Built on SyntHack, Firmware Workbench and elektron-firmware-tool, all MIT.
+    Not affiliated with or endorsed by Elektron. Experimental: use at your own risk.<br>
+    <a href="https://github.com/GHNMrec/SyntaktPerformanceMods">Source</a> ·
+    <a href="https://github.com/GHNMrec/SyntaktPerformanceMods/archive/refs/heads/main.zip">Download the source (.zip)</a> ·
+    <a href="https://github.com/GHNMrec/SyntaktPerformanceMods/blob/main/docs/STATUS.md">What's been checked</a> ·
+    <a href="https://github.com/GHNMrec/SyntaktPerformanceMods/blob/main/LEGAL.md">Legal</a></footer>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

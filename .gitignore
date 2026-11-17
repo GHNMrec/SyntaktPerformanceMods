@@ -21,3 +21,8 @@ SyntaktJOG_builder_notes.json
 
 # the install zip is committed on purpose (made by tools/package/make_release_zip.py, checked for firmware)
 !release/*.zip
+
+# the web builder: these two are made by tools/web/build_site.sh (CI), never committed
+web/catalog.json
+web/engine/eft.wasm
+_site/

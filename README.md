@@ -30,7 +30,20 @@ no firmware.
 
 See [LEGAL.md](LEGAL.md).
 
+## Build it in your browser (no install)
+
+**https://ghnmrec.github.io/SyntaktPerformanceMods/**
+
+* Drop your official OS file, tick the mods, then build. Building takes about half a minute.
+* Save the `.syx` and send it with Elektron Transfer.
+* Everything runs in your browser tab. Your OS file is never uploaded, and the site hosts no firmware.
+* The page is in `web/`; `tools/web/build_site.sh` assembles it, and `.github/workflows/pages.yml` publishes it.
+* It's the same builder as the desktop app, ported to JavaScript. The firmware tool is compiled to WebAssembly from
+  its public source. The tests checked that both builders give the same file, byte for byte, for every selection on
+  OS 1.41 and 1.42, and for the MAX 1.0 add-on.
+
 ## Install
+
 
 **Read [START HERE.txt](<START HERE.txt>).** It covers both ways to install, with a double-click launcher for each:
 
